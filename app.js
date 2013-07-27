@@ -1,4 +1,4 @@
-//var db = require('./db/schema');
+var db = require('./db/schema');
 var express = require('express');
 var fs = require('fs');
 var csv = require('csv');
@@ -7,49 +7,80 @@ var templatesDir = path.join(__dirname, 'templates');
 var emailTemplates = require('email-templates');
 var mailer = require('nodemailer');
 
-
 var app = express();
 app.use(express.bodyParser());
 app.use(express.compress());
 
-app.get('/app/*', function (req, res) {
-  	res.sendfile(__dirname + req.path);
+app.get('/app/*', function(req, res) {
+    res.sendfile(__dirname + req.path);
 });
 
-app.get('/getcsv', function (req, res) {
-  var retval = { data:[] };
-  var isNumeric = function(str) {
-    return !isNaN(parseFloat(str)) && isFinite(str);
-  };
+app.get('/products', function(req, res) {
+    db.Product.find({}, function(err, data) {
+        res.json(data);
+    });
+});
 
-  csv().from.stream(fs.createReadStream(__dirname +"/data.csv", "utf8"))
-    .on('record', function(row, index) {
-        if (index == 0) {
-            retval.header = {};
-            for (var i = 0; i < row.length; i++) {
-              retval.header["col" + i] = row[i];
-            }
+app.post('/uploadcsv', function(req, res) {
+    db.Product.find({}).remove();
+    var tempCsvPath = req.files.transportcsv.path;
+    var csvDataMapping = ["oc_num", "supplier.name", "supply_address",
+        "supplier.address.street", "supplier.address.suburb", 
+        "supplier.address.postcode", "product_name", "variant", "variant_weight",
+        "quantity", "reserve", "distributor.name", "delivery_address",
+        "distributor.address.street", "distributor.address.suburb",
+        "distributor.address.postcode", "shipping_instructions"];
 
-            retval.numCols = row.length;
+    var isNumeric = function(str) {
+        return !isNaN(parseFloat(str)) && isFinite(str);
+    };
+
+    csv().from.stream(fs.createReadStream(tempCsvPath, "utf8"))
+            .on('record', function(row, index) {        
+        if (index === 0) {
+            //do nothing with header in csv file
         } else {
-            var data = {};
-            data.bidValue = "";
-            data.hasBid = false;
+            var data = new db.Product();
+            //data.bidValue = "";
+            //data.hasBid = false;
             for (var i = 0; i < row.length; i++) {
-              data["col" + i] = isNumeric(row[i])?parseFloat(row[i]):row[i];
+                var val = isNumeric(row[i]) ? parseFloat(row[i]) : row[i];
+                var mapping = csvDataMapping[i];
+                if (mapping.indexOf(".") > 0) {
+                    var attrList = mapping.split(".");
+                    var tempObj = data;
+                    
+                    for (var x = 0; x < attrList.length; x++) {
+                        var attr = attrList[x];
+                        
+                        if (x === (attrList.length - 1))
+                            tempObj[attr] = val;
+                        else if (typeof tempObj[attr] == 'undefined') {
+                            tempObj[attr] = {};
+                        }
+                        
+                        tempObj = tempObj[attr];
+                    }
+                } else {
+                    data[mapping] = val;
+                }
             }
             
-            retval.data.push(data);
+            data.save(function(err) {
+                if (err) console.log(err);
+            });
+            
+            console.log(data);
         }
-    })
-    .on('close', function(count) {
+    }).on('close', function(count) {
         console.log("finished");
-    })
-    .on('error', function(err) {
+    }).on('error', function(err) {
         console.log(err);
-    })
-    .to(function() {
-        res.json(retval);
+    }).to(function() {
+        db.Product.count({}, function(err, c) {
+            console.log(c);
+        });
+        res.send(200);
     });
 });
 
@@ -66,43 +97,24 @@ app.post('/sendemail', function(req, res) {
     emailTemplates(templatesDir, function(err, template) {
         var locals = req.body;
         template('bid-reply', locals, function(err, html, text) {
-           if(!err) {
-/*            transport.sendMail({
-                from: 'Eaterprises <admin@eaterprises.com.au>',
-                to: locals.customer.email,
-                subject: "Transport Bid Details",
-                html: html
-            }, function(e, response) {
-                console.log(e);
-                console.log(response);
-                res.send(200);
-            }); */
-            res.send(html);
-           } else {
-            res.send(500);
-           }
+            if (!err) {
+                /*            transport.sendMail({
+                 from: 'Eaterprises <admin@eaterprises.com.au>',
+                 to: locals.customer.email,
+                 subject: "Transport Bid Details",
+                 html: html
+                 }, function(e, response) {
+                 console.log(e);
+                 console.log(response);
+                 res.send(200);
+                 }); */
+                res.send(html);
+            } else {
+                res.send(500);
+            }
         });
     });
 });
 
-/*
-app.post('/api/updateCollector', function (req, res) {
-	db.Collector.update({ _id : req.body.id  }, data ).exec();
-	res.send(200);
-});
-
-app.get('/api/getCollector/:isActive', function (req, res) { 
-	var condition = Boolean(req.params.isRead)?{}:{ isActive : true };
-	db.Article.find(condition).select({}).exec(function(err, data) {
-		res.json(data);
-	});
-});
-
-app.get('/api/getEntity', function(req, res) {
-	db.Entity.find({}, function(err, data) {
-		res.json(data);
-	});
-});
-*/
 app.listen(8000);
 console.log("listening on port 8000");
