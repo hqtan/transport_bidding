@@ -1,0 +1,26 @@
+Thank you <%= customer.name %> for your offer to complete these jobs:
+<div>
+<table>
+    <thead><tr>
+    <% for(var i=0; i< numCols; i++) { %>
+        <th><%= headers['col'+i] %></th>
+    <% } %>
+        <th>Your Bid</th>
+    </tr></thead>
+    <tbody>
+    <% for(var i=0; i<data.length; i++) { %>
+        <tr>
+        <% for(var x=0; x < numCols; x++) { %>
+            <td><%= data[i]['col'+x] %></td>
+        <% } %>
+            <td><%= data[i]['bidValue'] %></td>
+        </tr>
+    <% } %>
+    </tbody>
+</table>
+<p>By submitting a bid you have committed to complete these job(s) should we accept your offer we will accept or reject your offer within 24 hours via email.</p>
+<p>You can withdraw your offer at any point via email <em>prior</em> to receiving acceptance/rejection notification from us.</p>
+<p>Any questions? Email us.</p>
+<p>
+admin@eaterprises.com.au
+</p>

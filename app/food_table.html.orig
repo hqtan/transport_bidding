@@ -1,0 +1,515 @@
+<<<<<<< HEAD
+<html ng-app="foodApp">
+    <head>
+        <script type="text/javascript" language="javascript" src="js/lib/angular.js"></script>
+        <script type="text/javascript" language="javascript" src="js/lib/angular-sanitize.js"></script>
+        <script type="text/javascript" language="javascript" src="js/lib/ui-bootstrap-tpls-0.3.0.js"></script>
+        <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyDY0kkJiTPVd2U7aTOAwhc9ySH6oHxOIYM&sensor=false">
+        </script>
+        <script type="text/javascript" language="javascript" src="js/map.js"></script>
+
+        <link type="text/css" rel="stylesheet" href="css/bootstrap.css">
+        <link type="text/css" rel="stylesheet" href="css/datepicker.css">
+        <style>
+            table tbody td {
+                font-size: 10pt;
+            }
+        </style>
+        <script>
+            angular.module("foodApp", ['ui.bootstrap', 'ngSanitize'])
+                    .controller("InvCtrl", ['$scope', '$http',
+                function(scope, http) {
+                    initialize();
+                    scope.sortReverse = {};
+                    scope.isReverse = false;
+                    //make more generic @todo
+                    scope.filterProducts = function(item) {
+                        var isMatch = true;
+                        
+                        if (typeof scope.search_product != "undefined"
+                            && scope.search_product != "") {
+                            var regex = new RegExp(scope.search_product, "i")
+                            isMatch = isMatch && regex.test(item.product_name);
+                        }
+                        
+                        if (typeof scope.search_src != "undefined"
+                            && scope.search_src != "") {
+                            var regex = new RegExp(scope.search_src, "i")
+
+                            isMatch = isMatch && regex.test(item.supplier.address.suburb);
+                        }
+                        
+                        if (typeof scope.search_dest != "undefined"
+                            && scope.search_dest != "") {
+                            var regex = new RegExp(scope.search_dest, "i")
+
+                            isMatch = isMatch && regex.test(item.distributor.address.suburb);                        }
+                        
+                        return isMatch;
+                    }
+                    
+                    scope.rowDetails = [];
+                    scope.productData = {};
+                    scope.emailOpen = false;
+
+                    scope.getProductData = function() {
+                        http.get("/products").success(function(data) {
+                            scope.productData = data;
+                        });
+                    };
+
+                    /*
+                     scope.getCsvData = function (date) {
+                     http.get("/getcsv").success(function (data) {
+                     scope.csvData = data;
+                     var uniqueSupplyAddr = {};
+                     var uniqueDeliveryAddr = {};
+                     for(var row in data.data) {
+                     uniqueSupplyAddr[data.data[row].col2] = 1;
+                     uniqueDeliveryAddr[data.data[row].col12] = 1;
+                     }
+                     var counter = 0;
+                     for (var row in uniqueSupplyAddr) {
+                     counter++
+                     (function(row) {
+                     setTimeout(function() {
+                     addSourceMarkerToAddress(row);
+                     }, counter * 600)})(row);
+                     };
+                 
+                     for (var row in uniqueDeliveryAddr) {
+                     counter++
+                     (function(row) {
+                     setTimeout(function() {
+                     addDestMarkerToAddress(row);
+                     }, counter * 600)})(row);
+                     };
+                 
+                     scope.numCols = data.numCols;
+                     });
+                     }; 
+                     */
+                    scope.setSortCol = function(index) {
+                        if (typeof scope.sortReverse[index] == 'undefined')
+                            scope.sortReverse[index] = false;
+                        else
+                            scope.sortReverse[index] = !scope.sortReverse[index];
+                        scope.sortCol = index;
+                    };
+
+                    scope.showRowDetails = function(row) {
+                        scope.rowDetails = [];
+                        
+                        scope.rowDetails.push({
+                            desc: "Shipping Instruction",
+                            val: row.shipping_instructions
+                        });
+                        
+                        scope.rowDetails.push({
+                            desc: "Destination Address",
+                            val: row.delivery_address
+                        });
+                        
+                        scope.rowDetails.push({
+                            desc: "Source Address",
+                            val: row.supply_address
+                        });
+                        
+                        scope.rowDetails.push({
+                            desc: "Quantity",
+                            val: row.quantity
+                        });
+                        
+                        scope.rowDetails.push({
+                            desc: "Weight",
+                            val: row.variant_weight
+                        });    
+                        
+                        scope.rowDetails.push({
+                            desc: "Variant",
+                            val: row.variant
+                        });
+                        
+                        scope.rowDetails.push({
+                            desc: "Product Name",
+                            val: row.product_name
+                        });
+                    };
+
+                    scope.getBids = function() {
+                        var retval = scope.csvData.data.filter(function(e) {
+                            return e.hasBid;
+                        });
+                        return retval;
+                    }
+
+                    scope.updateBidValue = function(row) {
+                        if (row.hasBid) {
+                            row.bidValue = row.col10;
+                        } else
+                            row.bidValue = "";
+
+                        (function(row) {
+                            setTimeout(function() {
+                                setSourceDestAddress(row.col2, row.col12);
+                            }, 600)
+                        })(row);
+                    }
+
+                    scope.sendEmail = function() {
+                        var postData = {};
+                        postData.customer = {name: scope.customerName,
+                            email: scope.customerEmail};
+                        postData.headers = scope.csvData.header;
+                        postData.data = scope.getBids();
+                        postData.numCols = scope.numCols;
+
+                        http.post('/sendemail', postData).success(function(data) {
+                            scope.emailOpen = true;
+                            console.log(data);
+                            scope.emailData = data;
+                        });
+                    };
+
+                    scope.closeEmail = function() {
+                        scope.emailOpen = false;
+                    }
+
+                    scope.emailDialogOpts = {backdropFade: true, dialogFade: true};
+
+                    scope.getSupplierAddresses = function() {
+                        var bidRows = scope.getBids();
+                        console.log(bidRows);
+                    }
+
+                    scope.isSortReverse = function(index) {
+                        return scope.sortReverse[index] ? true : false;
+                    };
+                }]);
+        </script>
+    </head>
+    <body ng-controller="InvCtrl">
+        <div modal="emailOpen" close="closeEmail()" options="emailDialogOpts">
+            <div class="modal-header">
+                <h4>Customer Email</h4>
+            </div>
+            <div class="modal-body" ng-bind-html-unsafe="emailData">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-warning cancel" ng-click="closeEmail()">Close</button>
+            </div>
+        </div>
+        <div class="navbar"><div class="navbar-inner">
+                <ul class="nav pull-right">
+                    <li><a>My Account</a></li>
+                    <li><a>Sign Up</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="hero-unit" style="background-color:#001F12;">
+            <h3 style="color: white">Open Food Network</h3>
+            <h3 style="color: #93C02F;">Make an offer to move food.</h3>
+            <p style="color: White"><b>1. Check the box beside the jobs you want to do.</b></p>
+            <p style="color: White"><b>2. Enter the price for each job.</b></p>
+            <p style="color: White"><b>3. Provide your name and email address and click 'bid' to confirm your offer.</b></p>
+
+        </div>
+        <div id="googleMap" style="margin: 0 auto; width:500px;height:380px;"></div><br/>
+        <div class="row-fluid">
+            <div class="span9">
+                <table ng-init="getProductData()" class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>
+                                <input type="text" ng-model="search_product" class="input-medium" /><br/>
+                                <a ng-click="setSortCol('product_name')">Product
+                                    <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('product_name')]"></i></a>
+                            </th>
+                            <th>
+                                <a ng-click="setSortCol('quantity')">Qty
+                                    <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('quantity')]"></i></a>
+                            </th>
+                            <th>
+                                <input type="text" ng-model="search_src" class="input-medium"/><br/>
+                                <a ng-click="setSortCol('supplier.address.suburb')">Source
+                                    <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('supplier.address.suburb')]"></i></a>
+                            </th>
+                            <th>
+                                <input type="text" ng-model="search_dest" class="input-medium" /><br/>
+                                <a ng-click="setSortCol('distributor.address.suburb')">Destination
+                                    <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('distributor.address.suburb')]"></i></a>
+                            </th>
+                            <th>
+                                <a ng-click="setSortCol('reserve')">Reserve
+                                    <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('reserve')]"></i></a>
+                            </th>
+                            <th>Can Do</th>
+                            <th>Bid</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-click="showRowDetails(row)"
+                            ng-repeat="row in productData | filter:filterProducts | orderBy:sortCol:sortReverse[sortCol]">
+                            <td>{{row.product_name}}</td>
+                            <td>{{row.quantity}}</td>
+                            <td>{{row.supplier.address.suburb}}</td>
+                            <td>{{row.distributor.address.suburb}}</td>
+                            <td>{{row.reserve}}</td>
+                            <td><input type="checkbox" ng-model="row.hasBid" ng-change="updateBidValue(row)"></td>
+                            <td><input type="text" class="input-mini" ng-model="row.bidValue"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="span3 well">
+                <form name="submitForm" ng-submit="sendEmail()">
+                    <b class="muted">Name: </b><input required type="text" ng-model="customerName" hint="e.g. Jane Doe" /><br/>
+                    <b class="muted">Email: </b><input required type="email" ng-model="customerEmail" hint="jane@email.com" /><br/>
+                    <input type="submit" class="btn btn-success" value="Bid"/>
+                </form>
+                <h4>Details:</h4>
+                <p ng-repeat="detail in rowDetails">
+                    <b class="muted">{{detail.desc}}:</b><br />{{detail.val}}</p>
+            </div>
+            <div class="row-fluid"
+                 <div class="span12" style="text-align: center; margin: 0 auto"><img src="img/footer.png"></img></div>
+                </body>
+                </html>
+=======
+<!DOCTYPE html>
+<html lang="en" ng-app="foodApp">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transport Bidding - Open Food Network</title>
+
+	<link type="text/css" rel="stylesheet" href="css/bootstrap.min.css">
+	<link type="text/css" rel="stylesheet" href="css/datepicker.css">
+	<link type="text/css" rel="stylesheet" href="css/app.css">
+
+	<script type="text/javascript" language="javascript" src="js/jquery-2.0.1.js"></script>
+	<script type="text/javascript" language="javascript" src="js/angular.js"></script>
+	<script type="text/javascript" language="javascript" src="js/angular-sanitize.js"></script>
+	<script type="text/javascript" language="javascript" src="js/ui-bootstrap-tpls-0.3.0.js"></script>
+	<script src="http://maps.google.com/maps/api/js?sensor=false"></script>
+	<script type="text/javascript" language="javascript" src="js/map.js"></script>
+
+	<script>
+		angular.module("foodApp", ['ui.bootstrap', 'ngSanitize'])
+		.controller("InvCtrl", ['$scope', '$http',
+		function (scope, http) {
+			initialize();
+			scope.sortReverse = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+			scope.isReverse = false;
+			
+			scope.rowDetails = [];
+			scope.csvData = {};
+			scope.emailOpen = false;
+
+			scope.getCsvData = function (date) {
+				http.get("/getcsv").success(function (data) {
+				scope.csvData = data;
+				var uniqueSupplyAddr = {};
+				var uniqueDeliveryAddr = {};
+				var i = 0;
+				for(var row in data.data) {
+					i++;
+					uniqueSupplyAddr[data.data[row].col2] = 1;
+					uniqueDeliveryAddr[data.data[row].col12] = 1;
+				}
+				var i = 0;
+				var counter = 0;
+				for (var row in uniqueSupplyAddr) {
+					counter++;
+					i++;
+					(function(row) {
+						setTimeout(function() {
+						addSourceMarkerToAddress(row);
+					}, counter * 600)})(row);
+				};
+				var i = 0;
+				for (var row in uniqueDeliveryAddr) {
+					counter++;
+					i++;
+					(function(row) {
+						setTimeout(function() {
+						addDestMarkerToAddress(row);
+					}, counter * 600)})(row);
+				};
+
+				scope.numCols = data.numCols;
+				});
+			};
+
+			scope.setSortCol = function(index) {
+				scope.sortReverse[index] = !scope.sortReverse[index];
+				scope.sortCol = "col" + index;
+				scope.isReverse = scope.sortReverse[index];
+			};
+			
+			scope.showRowDetails = function(row) {
+				scope.rowDetails = [];
+				for (var i = 0; i < scope.numCols; i++) {
+					if (row["col" + i] !== 'undefined') {
+						scope.rowDetails.push({
+						value : row["col" + i],
+						header : scope.csvData.header["col" + i]
+						});
+					}
+				}
+			};
+
+			scope.getBids = function() {
+				var retval = scope.csvData.data.filter(function(e) {
+				return e.hasBid;
+				});
+				return retval;
+			}
+
+			scope.updateBidValue = function(row) {
+				if(row.hasBid)
+					row.bidValue = row.col10;
+				else
+					row.bidValue = "";
+
+				(function(row) {
+					setTimeout(function() {
+					setSourceDestAddress(row.col2, row.col12);
+				}, 600)})(row);
+			}
+
+			scope.sendEmail = function() {
+				var postData = { };
+				postData.customer = { 	name: scope.customerName, 
+										email: scope.customerEmail };
+				postData.headers = scope.csvData.header;
+				postData.data = scope.getBids();
+				postData.numCols = scope.numCols;
+
+				http.post('/sendemail', postData).success(function(data) {
+					scope.emailOpen = true;
+					console.log(data);
+					scope.emailData = data;
+				});
+			};
+
+			scope.closeEmail = function() {
+				scope.emailOpen = false;
+			}
+
+			scope.emailDialogOpts = {backdropFade: true, dialogFade: true};
+
+			scope.getSupplierAddresses = function() {
+				var bidRows = scope.getBids();
+				console.log(bidRows); 
+			}
+			
+			scope.isSortReverse = function(index) {
+				return scope.sortReverse[index]?true:false;
+			};
+		}]);
+	</script>
+</head>
+<body ng-controller="InvCtrl">
+
+	<div modal="emailOpen" close="closeEmail()" options="emailDialogOpts">
+		<div class="modal-header">
+			<h4>Customer Email</h4>
+		</div>
+		<div class="modal-body" ng-bind-html-unsafe="emailData">
+		</div>
+		<div class="modal-footer">
+			<button class="btn btn-warning cancel" ng-click="closeEmail()">Close</button>
+		</div>
+	</div>
+
+	<div class="navbar navbar-static-top">
+		<div class="navbar-inner">
+			<a class="brand" href="#">Transport Bidding <small>&dash; Open Food Network</small></a>
+			<ul class="nav pull-right">
+				<li><a href="#">My Account</a></li>
+				<li><a href="#">Sign Up</a></li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="hero-unit">
+		<h2>Make an offer to <em>move</em> food.</h2>
+		<ol>
+			<li>Check the box beside the jobs you want to do.</li>
+			<li>Enter the price for each job.</li>
+			<li>Provide your name and email address and click 'bid' to confirm your offer.</li>
+		</ol>
+	</div>
+
+	<div class="flex-video full-map" id="googleMap"></div>
+
+	<div class="container">
+	<div class="row-fluid">
+		<div class="span9">
+		<table ng-init="getCsvData()" class="table table-striped table-hover">
+			<thead>
+			<tr>
+				<th>
+				<input type="text" ng-model="search.col6" class="input-medium" placeholder="Sort"><br/>
+				<a ng-click="setSortCol(6)">{{csvData.header.col6}}
+					<i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse(6)]"></i></a>
+				</th>
+				<th>
+				<a ng-click="setSortCol(9)">{{csvData.header.col9}}
+					<i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse(9)]"></i></a>
+				</th>
+				<th>
+				<input type="text" ng-model="search.col4" class="input-medium" placeholder="Sort"><br/>
+				<a ng-click="setSortCol(4)">{{csvData.header.col4}}
+					<i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse(4)]"></i></a>
+				</th>
+				<th>
+				<input type="text" ng-model="search.col14" class="input-medium" placeholder="Sort"><br/>
+				<a ng-click="setSortCol(14)">{{csvData.header.col14}}
+					<i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse(14)]"></i></a>
+				</th>
+				<th>
+				<a ng-click="setSortCol(10)">{{csvData.header.col10}}
+					<i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse(10)]"></i></a>
+				</th>
+				<th>Can Do</th>
+				<th>Bid</th>
+			</tr>
+			</thead>
+			<tbody>
+				<tr ng-click="showRowDetails(row)"
+				 ng-repeat="row in csvData.data | filter:search | orderBy:sortCol:isReverse" class="id-{{row._id}}">
+					<td class="title">{{row.col6}}</td>
+					<td>{{row.col9}}</td>
+					<td>{{row.col4}}</td>
+					<td>{{row.col14}}</td>
+					<td>{{row.col10}}</td>
+					<td><input type="checkbox" ng-model="row.hasBid" ng-change="updateBidValue(row)"></td>
+					<td><input type="text" class="input-mini" ng-model="row.bidValue"></td>
+			</tr>
+			</tbody>
+			</table>
+		</div>
+		<div class="span3">
+			<div class="well">
+			<h4>Details:</h4>
+			<p ng-repeat="detail in rowDetails">
+			<b class="muted">{{detail.header}}:</b><br />{{detail.value}}</p>
+
+			<form name="submitForm" ng-submit="sendEmail()">
+				<input required type="text" ng-model="customerName" hint="e.g. Jane Doe" placeholder="Full Name" /><br/>
+				<input required type="email" ng-model="customerEmail" hint="jane@email.com" placeholder="Email Address" /><br/>
+				<input type="submit" class="btn btn-success" value="Bid"/>
+			</form>
+			</div>
+		</div>
+	</div>
+	</div>
+
+	<div class="row-fluid">
+		<div class="span12" style="text-align: center; margin: 0 auto"><img src="img/footer.png"></img></div>
+	</div>
+</body>
+</html>
+>>>>>>> c1a7218710e1cb7e0d89cd3f4c3f6bab3fc24130
