@@ -11,21 +11,13 @@ var app = express();
 app.use(express.bodyParser());
 app.use(express.compress());
 
-app.get('/*', function(req, res) {
-    res.sendfile(__dirname + "app/" + req.path);
-});
-
-app.get('/', function(req, res) {
-    res.sendfile(__dirname + "app/food_transport.html");
-});
-
-app.get('/products', function(req, res) {
+app.get('/api/products', function(req, res) {
     db.Product.find({}, function(err, data) {
         res.json(data);
     });
 });
 
-app.post('/uploadcsv', function(req, res) {
+app.post('/api/uploadcsv', function(req, res) {
     db.Product.find({}).remove();
     var tempCsvPath = req.files.transportcsv.path;
     var csvDataMapping = ["oc_num", "supplier.name", "supply_address",
@@ -88,7 +80,7 @@ app.post('/uploadcsv', function(req, res) {
     });
 });
 
-app.post('/sendemail', function(req, res) {
+app.post('/api/sendemail', function(req, res) {
     var transport = mailer.createTransport("SMTP", {
         service: "Gmail",
         debug: true,
@@ -118,6 +110,10 @@ app.post('/sendemail', function(req, res) {
             }
         });
     });
+});
+
+app.get('/*', function(req, res) {
+    res.sendfile(__dirname + "/app" + req.path);
 });
 
 var port = process.env.PORT || 8888;

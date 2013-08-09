@@ -54,7 +54,7 @@
                     scope.emailOpen = false;
 
                     scope.getProductData = function() {
-                        http.get("/products").success(function(data) {
+                        http.get("/api/products").success(function(data) {
                             scope.productData = data;
                         });
                     };
@@ -150,7 +150,7 @@
                         postData.data = scope.getBids();
                         postData.numCols = scope.numCols;
 
-                        http.post('/sendemail', postData).success(function(data) {
+                        http.post('/api/sendemail', postData).success(function(data) {
                             scope.emailOpen = true;
                             console.log(data);
                             scope.emailData = data;
