@@ -11,8 +11,12 @@ var app = express();
 app.use(express.bodyParser());
 app.use(express.compress());
 
-app.get('/app/*', function(req, res) {
-    res.sendfile(__dirname + req.path);
+app.get('/*', function(req, res) {
+    res.sendfile(__dirname + "app/" + req.path);
+});
+
+app.get('/', function(req, res) {
+    res.sendfile(__dirname + "app/food_transport.html");
 });
 
 app.get('/products', function(req, res) {
@@ -116,5 +120,7 @@ app.post('/sendemail', function(req, res) {
     });
 });
 
-app.listen(8888);
-console.log("listening on port 8888");
+var port = process.env.PORT || 8888;
+app.listen(port, function() {
+	console.log("Listening on " + port);
+});
