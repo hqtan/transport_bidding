@@ -21,6 +21,7 @@
                 function(scope, http) {
                     initialize();
                     scope.sortReverse = {};
+                    scope.filterAddr = "";
                     scope.isReverse = false;
                     //make more generic @todo
                     scope.filterProducts = function(item) {
@@ -49,9 +50,39 @@
                         return isMatch;
                     }
 
+                    scope.filterAddress = function(item) {
+                        if (scope.filterAddr !== "") {
+                            return item.supply_address === scope.filterAddr
+                                    || item.delivery_address === scope.filterAddr;
+                        }
+
+                        return true;
+                    }
+
                     scope.rowDetails = [];
                     scope.productData = {};
                     scope.emailOpen = false;
+
+                    var getLatLon = function(address, callback) {
+                        geocoder.geocode({
+                            address: address,
+                            region: 'no'
+                        }, function(results, status) {
+                            if (status.toLowerCase() === 'ok') {
+                                // Get center
+                                var coords = new google.maps.LatLng(
+                                        results[0]['geometry']['location'].lat(),
+                                        results[0]['geometry']['location'].lng()
+                                        );
+                                callback(coords);
+                            } else {
+                                console.log(status);
+                            }
+                        });
+                    };
+
+                    var addressLatLon = [];
+                    var polyLines = {};
 
                     scope.getProductData = function() {
                         http.get("/api/products").success(function(data) {
@@ -60,51 +91,89 @@
                             var uniqueSupplyAddr = {};
                             var uniqueDeliveryAddr = {};
                             for (var row in data) {
-                                uniqueSupplyAddr[data.supply_address] = 1;
-                                uniqueDeliveryAddr[data.devliery_address] = 1;
+                                uniqueSupplyAddr[data[row].supply_address] = 1;
+                                uniqueDeliveryAddr[data[row].delivery_address] = 1;
                             }
 
                             var counter = 0;
-                            for (var row in uniqueSupplyAddr) {
-                                counter++
-                                //(function(row) {
-                                    setTimeout(function() {
-                                        addSourceMarkerToAddress(row);
-                                    }, counter * 600)
-                                //})(row);
-                            }
-                            ;
 
-                            for (var row in uniqueDeliveryAddr) {
-                                counter++
-                                //(function(row) {
-                                    setTimeout(function() {
-                                        addDestMarkerToAddress(row);
-                                    }, counter * 600)
-                                //})(row);
+                            for (var addr in uniqueSupplyAddr) {
+                                addAddress(addr, counter++, false);
                             }
-                            ;
+
+                            for (var addr in uniqueDeliveryAddr) {
+                                addAddress(addr, counter++, true);
+                            }
+
+                            setTimeout(function() {
+                                for (var row in data) {
+                                    if (!(data[row].supply_address in polyLines)) {
+                                        polyLines[data[row].supply_address] = {};
+                                    }
+
+                                    var line = drawPolyLine(addressLatLon[data[row].supply_address],
+                                            addressLatLon[data[row].delivery_address]);
+                                    if (line !== false) {
+                                        polyLines[data[row].supply_address][data[row].delivery_address] = line;
+                                    }
+                                }
+                            }, counter++ * 650);
                         });
                     };
 
-                    /*
-                     scope.getCsvData = function (date) {
-                     http.get("/getcsv").success(function (data) {
-                     scope.csvData = data;
-                     
-                     scope.numCols = data.numCols;
-                     });
-                     }; 
-                     */
+                    var addMarker = function(latlng, addr, isDest) {
+                        var icon = isDest ? 'img/delivery_marker.png' : 'img/supplier_marker.png';
+                        var marker = new google.maps.Marker({
+                            position: latlng,
+                            map: map,
+                            icon: icon
+                        });
+
+                        google.maps.event.addListener(marker, "click", function() {
+                            scope.filterAddr = addr;
+                            scope.$apply();
+                        });
+                    };
+
+                    var addAddress = function(addr, counter, isDest) {
+                        setTimeout(function() {
+                            getLatLon(addr, function(latLon) {
+                                addressLatLon[addr] = latLon;
+                                addMarker(latLon, addr, isDest);
+                            });
+                        }, counter * 650);
+                    };
+
                     scope.setSortCol = function(index) {
-                        if (typeof scope.sortReverse[index] == 'undefined')
+                        if (typeof scope.sortReverse[index] === 'undefined')
                             scope.sortReverse[index] = false;
                         else
                             scope.sortReverse[index] = !scope.sortReverse[index];
                         scope.sortCol = index;
                     };
 
-                    scope.showRowDetails = function(row) {
+                    var selectedPolyLine;
+
+                    scope.onRowClick = function(row) {
+                        showRowDetails(row);
+                        var path = [addressLatLon[row.supply_address],
+                            addressLatLon[row.delivery_address]];
+
+                        if (angular.isUndefined(selectedPolyLine)) {
+                            selectedPolyLine = new google.maps.Polyline({
+                                map: map,
+                                strokeColor: '#49599C',
+                                strokeOpacity: '0.75',
+                                strokeWeight: '6',
+                                path: path
+                            });
+                        } else {
+                            selectedPolyLine.setPath(path);
+                            selectedPolyLine.setVisible(true);
+                        }
+                    };
+
+                    var showRowDetails = function(row) {
                         scope.rowDetails = [{
                                 desc: "Shipping Instruction",
                                 val: row.shipping_instructions
@@ -136,16 +205,47 @@
                         return retval;
                     }
 
+                    var drawPolyLine = function(srcLatLon, destLatLon) {
+                        if (!angular.isUndefined(srcLatLon) &&
+                                !angular.isUndefined(destLatLon)) {
+                            return new google.maps.Polyline({
+                                map: map,
+                                strokeColor: 'yellow',
+                                strokeOpacity: '0.75',
+                                strokeWeight: '6',
+                                path: [srcLatLon, destLatLon],
+                                visible: false
+                            });
+                        }
+
+                        return false;
+                    };
+
+                    var getPolyLine = function(srcAddr, dstAddr) {
+                        return polyLines[srcAddr][dstAddr];
+                    }
+
                     scope.updateBidValue = function(row) {
                         if (row.hasBid) {
                             row.bidValue = row.reserve;
                         } else
                             row.bidValue = "";
 
-                        setTimeout(function() {
-                            setSourceDestAddress(row.supply_address,
-                                    row.delivery_address);
-                        }, 600);
+                        getPolyLine(row.supply_address, row.delivery_address).setVisible(row.hasBid);
+                    };
+
+                    scope.resetFilters = function() {
+                        scope.filterAddr = "";
+                        selectedPolyLine.setVisible(false);
+                    }
+                    
+                    scope.clearBids = function() {
+                        scope.productData.forEach(function(e) {
+                            if (e.hasBid) {
+                                getPolyLine(e.supply_address, e.delivery_address).setVisible(false);
+                                e.hasBid = false;
+                            }
+                        });
                     }
 
                     scope.sendEmail = function() {
@@ -158,7 +258,6 @@
 
                         http.post('/api/sendemail', postData).success(function(data) {
                             scope.emailOpen = true;
-                            console.log(data);
                             scope.emailData = data;
                         });
                     };
@@ -240,13 +339,13 @@
                                     <a ng-click="setSortCol('reserve')">Reserve
                                         <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('reserve')]"></i></a>
                                 </th>
-                                <th>Can Do</th>
-                                <th>Bid</th>
+                                <th><button ng-click="clearBids()" class="btn btn-small">Clear</button><br>Bid</th>
+                                <th>Bid Value</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-click="showRowDetails(row)"
-                                ng-repeat="row in productData | filter:filterProducts | orderBy:sortCol:sortReverse[sortCol]">
+                            <tr ng-click="onRowClick(row)"
+                                ng-repeat="row in productData | filter:filterProducts | filter:filterAddress | orderBy:sortCol:sortReverse[sortCol]">
                                 <td>{{row.product_name}}</td>
                                 <td>{{row.quantity}}</td>
                                 <td>{{row.supplier.address.suburb}}</td>
@@ -263,6 +362,7 @@
                         <b class="muted">Name: </b><input required type="text" ng-model="customerName" hint="e.g. Jane Doe" /><br/>
                         <b class="muted">Email: </b><input required type="email" ng-model="customerEmail" hint="jane@email.com" /><br/>
                         <input type="submit" class="btn btn-success" value="Bid"/>
+                        <button class="btn" ng-click="resetFilters()">Reset Filters</button>
                     </form>
                     <h4>Details:</h4>
                     <p ng-repeat="detail in rowDetails">

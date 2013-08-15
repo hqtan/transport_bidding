@@ -86,13 +86,6 @@ function getLLFromAddress(input, func) {
 	);
 }
 
-function addMarker(latlng) {
-	marker = new google.maps.Marker({
-		position: latlng,		
-		map: map
-	});
-}
-
 function addRoutePathAddress(input) {
 	getLLFromAddress(input, addRoutePathPoint);
 }
