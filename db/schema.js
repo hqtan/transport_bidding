@@ -1,5 +1,7 @@
 var mongo = require('mongoose');
-mongo.connect('mongodb://localhost/transportbid', function(err) {
+var dbconf = require('../conf/dbconf.js');
+
+mongo.connect('mongodb://' + dbconf.mongoUrl, function(err) {
     if (err) console.log(err); 
 });
 
