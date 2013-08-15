@@ -56,6 +56,34 @@
                     scope.getProductData = function() {
                         http.get("/api/products").success(function(data) {
                             scope.productData = data;
+
+                            var uniqueSupplyAddr = {};
+                            var uniqueDeliveryAddr = {};
+                            for (var row in data) {
+                                uniqueSupplyAddr[data.supply_address] = 1;
+                                uniqueDeliveryAddr[data.devliery_address] = 1;
+                            }
+
+                            var counter = 0;
+                            for (var row in uniqueSupplyAddr) {
+                                counter++
+                                //(function(row) {
+                                    setTimeout(function() {
+                                        addSourceMarkerToAddress(row);
+                                    }, counter * 600)
+                                //})(row);
+                            }
+                            ;
+
+                            for (var row in uniqueDeliveryAddr) {
+                                counter++
+                                //(function(row) {
+                                    setTimeout(function() {
+                                        addDestMarkerToAddress(row);
+                                    }, counter * 600)
+                                //})(row);
+                            }
+                            ;
                         });
                     };
 
@@ -63,28 +91,6 @@
                      scope.getCsvData = function (date) {
                      http.get("/getcsv").success(function (data) {
                      scope.csvData = data;
-                     var uniqueSupplyAddr = {};
-                     var uniqueDeliveryAddr = {};
-                     for(var row in data.data) {
-                     uniqueSupplyAddr[data.data[row].col2] = 1;
-                     uniqueDeliveryAddr[data.data[row].col12] = 1;
-                     }
-                     var counter = 0;
-                     for (var row in uniqueSupplyAddr) {
-                     counter++
-                     (function(row) {
-                     setTimeout(function() {
-                     addSourceMarkerToAddress(row);
-                     }, counter * 600)})(row);
-                     };
-                     
-                     for (var row in uniqueDeliveryAddr) {
-                     counter++
-                     (function(row) {
-                     setTimeout(function() {
-                     addDestMarkerToAddress(row);
-                     }, counter * 600)})(row);
-                     };
                      
                      scope.numCols = data.numCols;
                      });
@@ -202,7 +208,7 @@
             </ol>
             <button type="button" class="btn btn-success" ng-click="hideHero = true">Ok, Got it!</button>
         </div>
-        
+
         <div class="flex-video full-map" id="googleMap"></div>
 
         <div class="container">
