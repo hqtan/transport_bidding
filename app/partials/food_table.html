@@ -1,0 +1,72 @@
+<div class="hero-unit" ng-hide="hideHero">
+  <h2>Make an offer to <em>move</em> food.</h2>
+  <ol>
+    <li>Check the box beside the jobs you want to do.</li>
+    <li>Enter the price for each job.</li>
+    <li>Provide your name and email address and click 'bid' to confirm your offer.</li>
+  </ol>
+  <button type="button" class="btn btn-success" ng-click="hideHero = true">Ok, Got it!</button>
+</div>
+
+<map visible-path-array="bidLatLonArray" visible-path="visibleLineLineLatLon" address-array="addressArray" selected-addr-mdl="filterAddr"></map>
+
+<div class="container">
+  <div class="row-fluid">
+    <div class="span9">
+      <table ng-init="getProductData()" class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th>
+              <input type="text" ng-model="search_product" class="input-medium" /><br/>
+              <a ng-click="setSortCol('product_name')">Product
+                <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('product_name')]"></i></a>
+            </th>
+            <th>
+              <a ng-click="setSortCol('quantity')">Qty
+                <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('quantity')]"></i></a>
+            </th>
+            <th>
+              <input type="text" ng-model="search_src" class="input-medium"/><br/>
+              <a ng-click="setSortCol('supplier.address.suburb')">Source
+                <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('supplier.address.suburb')]"></i></a>
+            </th>
+            <th>
+              <input type="text" ng-model="search_dest" class="input-medium" /><br/>
+              <a ng-click="setSortCol('distributor.address.suburb')">Destination
+                <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('distributor.address.suburb')]"></i></a>
+            </th>
+            <th>
+              <a ng-click="setSortCol('reserve')">Reserve
+                <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('reserve')]"></i></a>
+            </th>
+            <th><button ng-click="clearBids()" class="btn btn-small">Clear</button><br>Bid</th>
+            <th>Bid Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-click="onRowClick(row)"
+              ng-repeat="row in productData | filter:filterProducts | filter:filterAddress | orderBy:sortCol:sortReverse[sortCol]">
+            <td>{{row.product_name}}</td>
+            <td>{{row.quantity}}</td>
+            <td>{{row.supplier.address.suburb}}</td>
+            <td>{{row.distributor.address.suburb}}</td>
+            <td>{{row.reserve}}</td>
+            <td><input type="checkbox" ng-model="row.hasBid" ng-change="updateBidValue(row)"></td>
+            <td><input type="text" class="input-mini" ng-model="row.bidValue"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="span3 well">
+      <form name="submitForm" ng-submit="sendEmail()">
+        <b class="muted">Name: </b><input required type="text" ng-model="customerName" hint="e.g. Jane Doe" /><br/>
+        <b class="muted">Email: </b><input required type="email" ng-model="customerEmail" hint="jane@email.com" /><br/>
+        <input type="submit" class="btn btn-success" value="Bid"/>
+        <button class="btn" ng-click="resetFilters()">Reset Filters</button>
+      </form>
+      <h4>Details:</h4>
+      <p ng-repeat="detail in rowDetails">
+        <b class="muted">{{detail.desc}}:</b><br />{{detail.val}}</p>
+    </div>
+  </div>
+</div>
