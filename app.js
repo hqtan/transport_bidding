@@ -2,9 +2,10 @@ var db = require('./db/schema');
 var express = require('express');
 var fs = require('fs');
 var q = require('q');
+var _ = require('underscore');
 var csv = require('csv');
+var mapTools = require('./app_modules/map-tools');
 var path = require('path');
-var maps = require('googlemaps');
 var templatesDir = path.join(__dirname, 'templates');
 var emailTemplates = require('email-templates');
 var mailer = require('nodemailer');
@@ -20,66 +21,22 @@ app.get('/api/products', function(req, res) {
 });
 
 app.post('/api/uploadcsv', function(req, res) {
+  var mapInterface = new mapTools.MapInterface();
+
   db.Product.find({}).remove();
   var tempCsvPath = req.files.transportcsv.path;
-  var csvDataMapping = ["oc_num", "supplier.name", "supply_address",
-    "supplier.address.street", "supplier.address.suburb",
-    "supplier.address.postcode", "product_name", "variant", "variant_weight",
-    "quantity", "reserve", "distributor.name", "delivery_address",
-    "distributor.address.street", "distributor.address.suburb",
-    "distributor.address.postcode", "shipping_instructions"];
-
-  var locations = {};
-  var counter = 0;
-  var getLatLon = function(address, callback) {
-    if (address in locations)
-      callback(locations[address]);
-    else {
-      maps.geocode(address, function(err, data) {
-        if (typeof data !== 'undefined') {
-          var loc = data.results[0]['geometry']['location'];
-          locations[address] = loc;
-          console.log(loc);
-          callback(loc);
-        }
-      });
-    }
-  }
-
-  var isNumeric = function(str) {
-    return !isNaN(parseFloat(str)) && isFinite(str);
-  };
-
-  var addValueToObj = function(data, mapping, val) {
-    if (mapping.indexOf(".") > 0) {
-      var attrList = mapping.split(".");
-      var tmpObj = data;
-
-      for (var x = 0; x < attrList.length; x++) {
-        var attr = attrList[x];
-
-        if (x === (attrList.length - 1))
-          tmpObj[attr] = val;
-        else if (typeof tmpObj[attr] == 'undefined') {
-          tmpObj[attr] = {};
-        }
-
-        tmpObj = tmpObj[attr];
-      }
-    } else {
-      data[mapping] = val;
-    }
-
-    return data;
-  };
+  var csvDataMapping = ["supplier_name", "supply_address",
+    "supplier_street", "supplier_suburb",
+    "supplier_postcode", "product_name", "variant", "variant_weight",
+    "quantity", "reserve", "distributor_name", "delivery_address",
+    "distributor_street", "distributor_suburb",
+    "distributor_postcode", "shipping_instructions"];
 
   var callStack = [];
   var pushToCallstack = function(model, addressAttr, latLngAttr) {
     callStack.push(function() {
-      getLatLon(model[addressAttr], function(data) {
-        if (data !== false) {
-          model[latLngAttr] = {lat: data.lat, lon: data.lng};
-        }
+      return mapInterface.getLatLon(model[addressAttr]).then(function(resolved) {
+        model[latLngAttr] = resolved.latLon;
 
         model.save(function(err) {
           if (err)
@@ -87,7 +44,7 @@ app.post('/api/uploadcsv', function(req, res) {
         });
       });
     });
-  }
+  };
 
   csv().from.stream(fs.createReadStream(tempCsvPath, "utf8"))
           .on('record', function(row, index) {
@@ -95,10 +52,11 @@ app.post('/api/uploadcsv', function(req, res) {
       //do nothing with header in csv file
     } else {
       var data = new db.Product();
+      
       for (var i = 0; i < row.length; i++) {
-        var val = isNumeric(row[i]) ? parseFloat(row[i]) : row[i];
+        var val = _.isNumber(row[i]) ? parseFloat(row[i]) : row[i];
         var mapping = csvDataMapping[i];
-        data = addValueToObj(data, mapping, val);
+        data[mapping] = val;
       }
 
       pushToCallstack(data, "supply_address", "supply_lat_lon");
@@ -109,15 +67,15 @@ app.post('/api/uploadcsv', function(req, res) {
   }).on('error', function(err) {
     console.log(err);
   }).to(function() {
-    while (callStack.length > 0) {
-      setTimeout(callStack.shift(), 650 * counter++);
-    }
-    setTimeout(function() {
-      db.Product.count({}, function(err, c) {
-        console.log(c);
+    var shiftThenRun = function(stack) {
+      if (stack.length > 0) (stack.shift())().then(function() {
+        shiftThenRun(stack);
       });
-      res.send(200);
-    }, 650 * counter++);
+    };
+    
+    shiftThenRun(callStack);
+
+    res.send(200);
   });
 });
 
@@ -157,7 +115,7 @@ app.get('/*', function(req, res) {
   res.sendfile(__dirname + "/app" + req.path);
 });
 
-var port = process.env.PORT || 8888;
+var port = process.env.PORT || 3000;
 app.listen(port, function() {
   console.log("Listening on " + port);
 });

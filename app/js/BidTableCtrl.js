@@ -19,14 +19,14 @@ angular.module("transportBiddingApp")
               && $s.search_src != "") {
         var regex = new RegExp($s.search_src, "i")
 
-        isMatch = isMatch && regex.test(item.supplier.address.suburb);
+        isMatch = isMatch && regex.test(item.supplier_suburb);
       }
 
       if (typeof $s.search_dest != "undefined"
               && $s.search_dest != "") {
         var regex = new RegExp($s.search_dest, "i")
 
-        isMatch = isMatch && regex.test(item.distributor.address.suburb);
+        isMatch = isMatch && regex.test(item.distributor_suburb);
       }
 
       return isMatch;

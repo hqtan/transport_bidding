@@ -27,13 +27,13 @@
             </th>
             <th>
               <input type="text" ng-model="search_src" class="input-medium"/><br/>
-              <a ng-click="setSortCol('supplier.address.suburb')">Source
-                <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('supplier.address.suburb')]"></i></a>
+              <a ng-click="setSortCol('supplier_suburb')">Source
+                <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('supplier_suburb')]"></i></a>
             </th>
             <th>
               <input type="text" ng-model="search_dest" class="input-medium" /><br/>
-              <a ng-click="setSortCol('distributor.address.suburb')">Destination
-                <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('distributor.address.suburb')]"></i></a>
+              <a ng-click="setSortCol('distributor_suburb')">Destination
+                <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('distributor_suburb')]"></i></a>
             </th>
             <th>
               <a ng-click="setSortCol('reserve')">Reserve
@@ -48,8 +48,8 @@
               ng-repeat="row in productData | filter:filterProducts | filter:filterAddress | orderBy:sortCol:sortReverse[sortCol]">
             <td>{{row.product_name}}</td>
             <td>{{row.quantity}}</td>
-            <td>{{row.supplier.address.suburb}}</td>
-            <td>{{row.distributor.address.suburb}}</td>
+            <td>{{row.supplier_suburb}}</td>
+            <td>{{row.distributor_suburb}}</td>
             <td>{{row.reserve}}</td>
             <td><input type="checkbox" ng-model="row.hasBid" ng-change="updateBidValue(row)"></td>
             <td><input type="text" class="input-mini" ng-model="row.bidValue"></td>

@@ -9,6 +9,7 @@
     "nodemailer": "*",
     "email-templates" : "*",
     "googlemaps" : "*",
+    "underscore" : "*",
     "q" : "*"
   }
 }

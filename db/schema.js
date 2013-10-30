@@ -6,22 +6,6 @@ mongo.connect('mongodb://' + dbconf.mongoUrl, function(err) {
     console.log(err);
 });
 
-var Address = {
-  street: String,
-  suburb: String,
-  postcode: Number
-};
-
-var Supplier = {
-  name: String,
-  address: Address
-};
-
-var Distributor = {
-  name: String,
-  address: Address
-};
-
 var LatLon = {
   lat: Number,
   lon: Number
@@ -30,8 +14,14 @@ var LatLon = {
 var Product = new mongo.Schema({
   timestamp: {type: Date, default: Date.now},
   oc_num: String,
-  supplier: Supplier,
-  distributor: Distributor,
+  supplier_name: String,
+  supplier_suburb: String,
+  supplier_postcode: String,
+  supplier_address: String,
+  distributor_name: String,
+  distributor_suburb: String,
+  distributor_postcode: String,
+  distributor_address: String,
   product_name: String,
   variant: String,
   variant_weight: Number,
