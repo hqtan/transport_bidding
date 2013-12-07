@@ -11,9 +11,8 @@ var LatLon = {
   lon: Number
 };
 
-var Product = new mongo.Schema({
+var Package = new mongo.Schema({
   timestamp: {type: Date, default: Date.now},
-  oc_num: String,
   supplier_name: String,
   supplier_suburb: String,
   supplier_postcode: String,
@@ -31,7 +30,55 @@ var Product = new mongo.Schema({
   delivery_address: String,
   shipping_instructions: String,
   supply_lat_lon: LatLon,
-  delivery_lat_lon: LatLon
+  delivery_lat_lon: LatLon,
+  is_active: { type: Boolean, default: true }
 });
 
-exports.Product = mongo.model("product", Product);
+var TransportCycle = new mongo.Schema({
+  transport_cycle_coordinator_id: String,
+  start_date: Date,
+  end_date: Date,
+  package_list: [Package],
+  is_active: { type: Boolean, default: true }
+});
+
+var TransportCycleCoordinator = new mongo.Schema({
+  first_name: String,
+  last_name: String,
+  organisation_name: String,
+  email: String,
+  mobile: String,
+  phone: String,
+  address: String
+});
+
+var Bid = new mongo.Schema({
+  package_id: String,
+  bidder_name: String,
+  bidder_email: String,
+  bidder_mobile: String,
+  comments: String,
+  value: Number,
+  ts: Date
+});
+
+var Coordinator = new mongo.Schema({
+  organisation_name: String,
+  first_name: String,
+  last_name: String,
+  email: String,
+  mobile: String,
+  landline: String,
+  email_address: String,
+  address_street: String,
+  address_suburb: String,
+  address_postcode: String,
+  address_address: String
+});
+
+
+exports.Package = mongo.model("package", Package);
+exports.TransportCycle = mongo.model("transport_cycle", TransportCycle);
+exports.Bid = mongo.model("bid", Bid);
+exports.TransportCycleCoordinator = mongo.model("transport_cycle_coordinator", TransportCycleCoordinator);
+exports.Coordinator = mongo.model("coordinator", Coordinator);

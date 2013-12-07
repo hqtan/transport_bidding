@@ -18,11 +18,13 @@ exports.MapInterface = function() {
       setTimeout(function() {
         maps.geocode(address, function(err, data) {
           if (err) console.log(err);
-          if (typeof data !== 'undefined') {
+          if (typeof data !== 'undefined' && data.results.length > 0) {
             var loc = data.results[0]['geometry']['location'];
             locations[address] = loc;
             console.log(address + " found: " + JSON.stringify(loc));
             defer.resolve({ latLon: formatLatLon(loc), isFromCache: false });
+          } else {
+            defer.resolve({ latLon: {}, isFromCache: false });
           }
         });
       }, DELAY);

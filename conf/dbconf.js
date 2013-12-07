@@ -1,12 +1,15 @@
 var conf = {};
 console.log(process.env.MONGO_PWD);
-conf = { user : '',
+conf = { user : 'dev',
           pwd : process.env.MONGO_PWD,
-          url : 'localhost',
-          port: '27017',
+          url : 'ds039058.mongolab.com',
+          port: '39058',
           db: 'dev-food-transport' };
 
-conf.mongoUrl = conf.user + ':' + conf.pwd +
-  '@' + conf.url + ':' + conf.port + '/' + conf.db;
+//mongolab config string
+//conf.mongoUrl = conf.user + ':' + conf.pwd +
+//  '@' + conf.url + ':' + conf.port + '/' + conf.db;
 
+//local instance
+conf.mongoUrl = "localhost/transport-bidding";
 module.exports = conf;
