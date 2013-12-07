@@ -3,15 +3,13 @@
   "version" : "0.0.1",
   "private": true,
   "dependencies": {
-    "express":"*",
+    "express":"3.x",
     "mongoose": "*",
-    "mongoose-auto-increment": "*",
     "csv": "*",
     "nodemailer": "*",
     "email-templates" : "*",
     "googlemaps" : "*",
     "underscore" : "*",
-    "moment" : "*",
     "q" : "*"
   }
 }

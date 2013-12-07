@@ -9,5 +9,8 @@ angular.module('transportBiddingApp').config(['$routeProvider',
       controller: 'BidTableCtrl' })
     $routeProvider.when('/coordinators', { templateUrl: 'partials/coordinator_table.html', 
       controller: 'CoordinatorTableCtrl' })
+    $routeProvider.when('/admin', { templateUrl: 'partials/admin.html',  controller: '' })
+    $routeProvider.when('/upload', { templateUrl: 'partials/upload.html',
+    	controller: 'UploadCtrl' })
     $routeProvider.otherwise({redirectTo: '/'});
   }]);

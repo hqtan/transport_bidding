@@ -1,10 +1,10 @@
-var mongo = require('mongoose'),
-  autoIncrement = require('mongoose-auto-increment');
+var mongo = require('mongoose');
 var dbconf = require('../conf/dbconf.js');
 
-mongo.connect('mongodb://' + dbconf.mongoUrl);
-
-autoIncrement.initialize(mongo);
+mongo.connect('mongodb://' + dbconf.mongoUrl, function(err) {
+  if (err)
+    console.log(err);
+});
 
 var LatLon = {
   lat: Number,
@@ -59,10 +59,9 @@ var Bid = new mongo.Schema({
   bidder_mobile: String,
   comments: String,
   value: Number,
-  ts: { type: Date, default: Date.now },
-  bid_status: { type: Number, default: 0 }
-
+  ts: Date
 });
+
 var Coordinator = new mongo.Schema({
   organisation: String,
   first_name: String,
@@ -77,11 +76,9 @@ var Coordinator = new mongo.Schema({
   address_address: String
 });
 
-TransportCycle.plugin(autoIncrement.plugin, { model: "transport_cycle",
-  field: "tc_num" });
 
-exports.TransportCycle = mongo.model("transport_cycle", TransportCycle);
 exports.Package = mongo.model("package", Package);
+exports.TransportCycle = mongo.model("transport_cycle", TransportCycle);
 exports.Bid = mongo.model("bid", Bid);
 exports.TransportCycleCoordinator = mongo.model("transport_cycle_coordinator", TransportCycleCoordinator);
 exports.Coordinator = mongo.model("coordinator", Coordinator);
