@@ -63,7 +63,7 @@ var Bid = new mongo.Schema({
 });
 
 var Coordinator = new mongo.Schema({
-  organisation_name: String,
+  organisation: String,
   first_name: String,
   last_name: String,
   email: String,

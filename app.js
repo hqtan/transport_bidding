@@ -127,7 +127,7 @@ app.get('/api/coordinators', function(req, res) {
 });
 app.post('/api/coordinator/new', function(req, res) {
     var data = new db.Coordinator();
-    data['organisation_name'] = req.body.user['organisation_name'];
+    data['organisation'] = req.body.user['organisation'];
     data['first_name'] = req.body.user['first_name'];
     data['last_name'] = req.body.user['last_name'];
     data['email'] = req.body.user['email'];
