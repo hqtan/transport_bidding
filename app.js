@@ -15,9 +15,13 @@ app.use(express.bodyParser());
 app.use(express.compress());
 
 app.get('/api/products', function(req, res) {
-  db.Package.find({}, function(err, data) {
-    res.json(data);
+  db.TransportCycle.find({}, function(err, data) {
+    res.json(data[0].package_list);
   });
+});
+
+app.get('/api/transport_cycle', function(req, res) {
+  
 });
 
 app.post('/api/uploadcsv', function(req, res) {
