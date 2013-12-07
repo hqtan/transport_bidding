@@ -29,6 +29,56 @@ app.get('/api/transport_cycle', function(req, res) {
   });
 });
 
+app.get('/api/transport_cycle/all', function(req, res) {
+  // better way to find coordinator names? not sure if want to merge into /api/transport_cycle or not
+  db.TransportCycle.find().distinct('transport_cycle_coordinator_id', function(error, coordinator_ids) {
+    db.Coordinator.find({ $or: coordinator_ids.map(function(id){ return {_id: id}}) },  function(error, coordinators_raw) {
+      var coordinators = {};
+      coordinators_raw.forEach(function(e){
+        e.display_name = 
+          (typeof e['organisation'] != "undefined" ? e['organisation'] : "") + ": " +
+          (typeof e['first_name'] != "undefined" ? e['first_name'] : "") + " " + 
+          (typeof e['last_name'] != "undefined" ? e['last_name'] : "") + 
+          "";
+
+        coordinators[e._id] = e;
+      });
+
+      db.TransportCycle.find({}, { package_list: 0 }, function(err, data) {
+        var retval = [];
+        data.forEach(function(e) {      
+          var text = "TC" + e.tc_num + " " + moment(e.end_date).format("D-MM-YYYY");
+          retval.push({ 
+            display_text: text,
+            coordinator_text: coordinators[e.transport_cycle_coordinator_id].display_name,
+            start_date: e.start_date,
+            end_date: e.end_date,
+            is_active: e.is_active,
+            display_text: text,
+            _id: e._id
+          });
+        });
+        res.json(retval);
+      });
+    });  
+  });  
+});
+app.post('/api/transport_cycle/edit', function(req, res) {
+    db.TransportCycle.findOne({ _id: req.body.transport_cycle.id }, function(err, data) {
+      if(err || data == null) {
+        res.send('');
+        return;
+      }
+      data.is_active = req.body.transport_cycle.active;
+      data.save(function(err) {
+          if (err) {
+            console.log(err);
+          }
+          res.json({"status":"ok"});
+      });
+    });
+});
+
 app.get('/api/products/:id', function(req, res) {
   db.TransportCycle.findOne({ _id: req.params.id }, function(err, data) {
     if (data === null) res.send('');
@@ -146,6 +196,33 @@ app.post('/api/sendemail', function(req, res) {
   });
 });
 
+
+
+app.get('/api/coordinators', function(req, res) {
+  db.Coordinator.find({}, function(err, data) {
+    res.json(data);
+  });
+});
+app.post('/api/coordinator/new', function(req, res) {
+    var data = new db.Coordinator();
+    data['organisation'] = req.body.user['organisation'];
+    data['first_name'] = req.body.user['first_name'];
+    data['last_name'] = req.body.user['last_name'];
+    data['email'] = req.body.user['email'];
+    data['mobile'] = req.body.user['mobile'];
+    data['landline'] = req.body.user['landline'];
+    data['email'] = req.body.user['email'];
+    data['address_street'] = req.body.user['address_street'];
+    data['address_suburb'] = req.body.user['address_suburb'];
+    data['address_postcode'] = req.body.user['address_postcode'];
+    data.save(function(err) {      
+        if (err) {
+          console.log(err);
+          res.json({"status": "error"})
+        }
+      res.json({"status":"ok"});
+    });
+});
 app.get('/*', function(req, res) {
   res.sendfile(__dirname + "/app" + req.path);
 });

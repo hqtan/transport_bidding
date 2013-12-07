@@ -63,6 +63,20 @@ var Bid = new mongo.Schema({
   bid_status: { type: Number, default: 0 }
 });
 
+var Coordinator = new mongo.Schema({
+  organisation: String,
+  first_name: String,
+  last_name: String,
+  email: String,
+  mobile: String,
+  landline: String,
+  email_address: String,
+  address_street: String,
+  address_suburb: String,
+  address_postcode: String,
+  address_address: String
+});
+
 TransportCycle.plugin(autoIncrement.plugin, { model: "transport_cycle",
   field: "tc_num" });
 
@@ -70,3 +84,4 @@ exports.TransportCycle = mongo.model("transport_cycle", TransportCycle);
 exports.Package = mongo.model("package", Package);
 exports.Bid = mongo.model("bid", Bid);
 exports.TransportCycleCoordinator = mongo.model("transport_cycle_coordinator", TransportCycleCoordinator);
+exports.Coordinator = mongo.model("coordinator", Coordinator);
