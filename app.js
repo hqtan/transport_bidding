@@ -36,10 +36,6 @@ app.get('/api/products/:id', function(req, res) {
   });
 });
 
-app.get('/api/transport_cycle', function(req, res) {
-  
-});
-
 app.post('/api/uploadcsv', function(req, res) {
   var mapInterface = new mapTools.MapInterface();
   var packages = [];
@@ -105,6 +101,17 @@ app.post('/api/uploadcsv', function(req, res) {
     
     shiftThenRun(callStack);
   });
+});
+
+app.post('/api/bid', function(req, res) {
+  req.body.forEach(function(e) {
+    var bid = new db.Bid(e);
+    bid.save(function(err) {
+      if (err) console.log(err);
+    });
+  });
+  
+  res.send(200);
 });
 
 app.post('/api/sendemail', function(req, res) {

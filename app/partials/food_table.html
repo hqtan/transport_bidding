@@ -62,9 +62,11 @@
       </table>
     </div>
     <div class="span3 well">
-      <form name="submitForm" ng-submit="sendEmail()">
-        <b class="muted">Name: </b><input required type="text" ng-model="customerName" hint="e.g. Jane Doe" /><br/>
-        <b class="muted">Email: </b><input required type="email" ng-model="customerEmail" hint="jane@email.com" /><br/>
+      <form name="submitForm" ng-submit="placeBid()">
+        <b class="muted">Name: </b><input required type="text" ng-model="bidName" hint="e.g. Jane Doe" /><br/>
+        <b class="muted">Email: </b><input required type="email" ng-model="bidEmail" hint="jane@email.com" /><br/>
+        <b class="muted">Mobile: </b><input type="text" ng-model="bidMobile" /><br/>
+        <b class="muted">Comments: </b><input type="text" ng-model="bidComments" /><br/>
         <input type="submit" class="btn btn-success" value="Bid"/>
         <button class="btn" ng-click="resetFilters()">Reset Filters</button>
       </form>

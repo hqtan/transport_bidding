@@ -108,7 +108,7 @@ angular.module("transportBiddingApp")
     };
 
     $s.getBids = function() {
-      var retval = $s.csvData.data.filter(function(e) {
+      var retval = $s.productData.filter(function(e) {
         return e.hasBid;
       });
       return retval;
@@ -143,9 +143,28 @@ angular.module("transportBiddingApp")
           e.hasBid = false;
         }
       });
-    }
+    };
 
-    $s.sendEmail = function() {
+    $s.placeBid = function() {
+      var postData = [];
+      var bids = $s.getBids();
+      bids.forEach(function(e) {
+        postData.push({
+          package_id: e._id,
+          bidder_name: $s.bidName,
+          bidder_email: $s.bidEmail,
+          bidder_mobile: $s.bidMobile,
+          comments: $s.bidComments,
+          value: e.bidValue
+        });
+      });
+
+      http.post('/api/bid', postData).success(function(data) {
+        alert("Bids successfully placed.");
+      });
+    };
+
+    /* $s.sendEmail = function() {
       var postData = {};
       postData.customer = {name: $s.customerName,
         email: $s.customerEmail};
@@ -157,7 +176,7 @@ angular.module("transportBiddingApp")
         $s.emailOpen = true;
         $s.emailData = data;
       });
-    };
+    }; */
 
     $s.isSortReverse = function(index) {
       return $s.sortReverse[index];
