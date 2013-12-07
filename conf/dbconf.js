@@ -6,7 +6,10 @@ conf = { user : 'dev',
           port: '39058',
           db: 'dev-food-transport' };
 
-conf.mongoUrl = conf.user + ':' + conf.pwd +
-  '@' + conf.url + ':' + conf.port + '/' + conf.db;
+//mongolab config string
+//conf.mongoUrl = conf.user + ':' + conf.pwd +
+//  '@' + conf.url + ':' + conf.port + '/' + conf.db;
 
+//local instance
+conf.mongoUrl = "localhost/transport-bidding";
 module.exports = conf;

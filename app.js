@@ -15,7 +15,7 @@ app.use(express.bodyParser());
 app.use(express.compress());
 
 app.get('/api/products', function(req, res) {
-  db.Product.find({}, function(err, data) {
+  db.Package.find({}, function(err, data) {
     res.json(data);
   });
 });
@@ -23,7 +23,7 @@ app.get('/api/products', function(req, res) {
 app.post('/api/uploadcsv', function(req, res) {
   var mapInterface = new mapTools.MapInterface();
 
-  db.Product.find({}).remove();
+  db.Package.find({}).remove();
   var tempCsvPath = req.files.transportcsv.path;
   var csvDataMapping = ["supplier_name", "supply_address",
     "supplier_street", "supplier_suburb",
@@ -51,7 +51,7 @@ app.post('/api/uploadcsv', function(req, res) {
     if (index === 0) {
       //do nothing with header in csv file
     } else {
-      var data = new db.Product();
+      var data = new db.Package();
       
       for (var i = 0; i < row.length; i++) {
         var val = _.isNumber(row[i]) ? parseFloat(row[i]) : row[i];
@@ -115,7 +115,7 @@ app.get('/*', function(req, res) {
   res.sendfile(__dirname + "/app" + req.path);
 });
 
-var port = process.env.PORT || 3000;
+var port = process.env.PORT || 8000;
 app.listen(port, function() {
   console.log("Listening on " + port);
 });
