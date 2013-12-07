@@ -6,7 +6,10 @@
     <body>
         <form action="/api/uploadcsv" method="post"
               enctype="multipart/form-data">
-            <input type="file" name="transportcsv"><br>
+            Coordinator Id: <input type="text" name="coordinator_id"><br>
+            Cycle Start: <input type="date" name="start_date"><br>
+            Cycle Finish: <input type="date" name="end_date"><br>
+            CSV: <input type="file" name="transportcsv"><br>
             <input type="submit" value="Submit">
         </form>
     </body>

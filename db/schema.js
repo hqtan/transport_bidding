@@ -13,7 +13,6 @@ var LatLon = {
 
 var Package = new mongo.Schema({
   timestamp: {type: Date, default: Date.now},
-  oc_num: String,
   supplier_name: String,
   supplier_suburb: String,
   supplier_postcode: String,
@@ -31,14 +30,16 @@ var Package = new mongo.Schema({
   delivery_address: String,
   shipping_instructions: String,
   supply_lat_lon: LatLon,
-  delivery_lat_lon: LatLon
+  delivery_lat_lon: LatLon,
+  is_active: { type: Boolean, default: true }
 });
 
 var TransportCycle = new mongo.Schema({
   transport_cycle_coordinator_id: String,
   start_date: Date,
   end_date: Date,
-  package_list: [Package]
+  package_list: [Package],
+  is_active: { type: Boolean, default: true }
 });
 
 var TransportCycleCoordinator = new mongo.Schema({

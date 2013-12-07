@@ -23,6 +23,8 @@ exports.MapInterface = function() {
             locations[address] = loc;
             console.log(address + " found: " + JSON.stringify(loc));
             defer.resolve({ latLon: formatLatLon(loc), isFromCache: false });
+          } else {
+            defer.resolve({ latLon: {}, isFromCache: false });
           }
         });
       }, DELAY);

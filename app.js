@@ -22,8 +22,8 @@ app.get('/api/products', function(req, res) {
 
 app.post('/api/uploadcsv', function(req, res) {
   var mapInterface = new mapTools.MapInterface();
+  var packages = [];
 
-  db.Package.find({}).remove();
   var tempCsvPath = req.files.transportcsv.path;
   var csvDataMapping = ["supplier_name", "supply_address",
     "supplier_street", "supplier_suburb",
@@ -36,16 +36,11 @@ app.post('/api/uploadcsv', function(req, res) {
   var pushToCallstack = function(model, addressAttr, latLngAttr) {
     callStack.push(function() {
       return mapInterface.getLatLon(model[addressAttr]).then(function(resolved) {
-        model[latLngAttr] = resolved.latLon;
-
-        model.save(function(err) {
-          if (err)
-            console.log(err);
-        });
+	model[latLngAttr] = resolved.latLon;
+        packages.push(model);
       });
     });
   };
-
   csv().from.stream(fs.createReadStream(tempCsvPath, "utf8"))
           .on('record', function(row, index) {
     if (index === 0) {
@@ -68,14 +63,26 @@ app.post('/api/uploadcsv', function(req, res) {
     console.log(err);
   }).to(function() {
     var shiftThenRun = function(stack) {
-      if (stack.length > 0) (stack.shift())().then(function() {
-        shiftThenRun(stack);
-      });
+      if (stack.length > 0) { 
+        (stack.shift())().then(function() {
+          shiftThenRun(stack);
+        });
+      } else {
+        var transCycle = new db.TransportCycle({
+	  package_list: packages,
+          start_date: req.body.start_date,
+          end_date: req.body.end_date,
+          transport_cycle_coordinator_id: req.body.coordinator_id
+        });
+      
+        transCycle.save(function(err) {
+          if (err) console.log(err);
+          res.send(200);
+	});
+      }
     };
     
     shiftThenRun(callStack);
-
-    res.send(200);
   });
 });
 
