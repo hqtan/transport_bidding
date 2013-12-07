@@ -33,6 +33,7 @@ app.get('/api/transport_cycle/all', function(req, res) {
   // better way to find coordinator names? not sure if want to merge into /api/transport_cycle or not
   db.TransportCycle.find().distinct('transport_cycle_coordinator_id', function(error, coordinator_ids) {
     db.Coordinator.find({ $or: coordinator_ids.map(function(id){ return {_id: id}}) },  function(error, coordinators_raw) {
+      if(typeof(coordinators_raw) === "undefined" || coordinators_raw == null ) return;
       var coordinators = {};
       coordinators_raw.forEach(function(e){
         e.display_name = 

@@ -1,0 +1,113 @@
+<div class="container">
+  <div class="row-fluid">
+    <div class="span12">
+      <table class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th>
+              <input type="text" ng-model="search_supplier_name" class="input-medium" /><br/>
+              <a ng-click="setSortCol('supplier_name')">Supplier Name
+                <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('supplier_name')]"></i></a>
+            </th>
+            <th>
+              <input type="text" ng-model="search_supply_address" class="input-medium" /><br/>
+              <a ng-click="setSortCol('supply_address')">Supply Address
+                <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('supply_address')]"></i></a>
+            </th>
+            <th>
+              <input type="text" ng-model="search_supplier_address" class="input-medium" /><br/>
+              <a ng-click="setSortCol('supplier_address')">Supplier Address
+                <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('supplier_address')]"></i></a>
+            </th>
+            <th>
+              <input type="text" ng-model="search_supplier_suburb" class="input-medium" /><br/>
+              <a ng-click="setSortCol('supplier_suburb')">Supplier Suburb/Town
+                <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('supplier_suburb')]"></i></a>
+            </th>
+            <th>
+              <input type="text" ng-model="search_product_name" class="input-medium" /><br/>
+              <a ng-click="setSortCol('product_name')">Supplier Postcode
+                <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('product_name')]"></i></a>
+            </th>
+            <th>
+              <input type="text" ng-model="search_product" class="input-medium" /><br/>
+              <a ng-click="setSortCol('product')">Product 
+                <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('product')]"></i></a>
+            </th>
+            <th>
+              <input type="text" ng-model="search_product_variant" class="input-medium" /><br/>
+              <a ng-click="setSortCol('product_variant')">Variant
+                <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('product_variant')]"></i></a>
+            </th>
+            <th>
+              <input type="text" ng-model="search_product_weight" class="input-medium" /><br/>
+              <a ng-click="setSortCol('product_weight')">Variant Weight - quant
+                <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('product_weight')]"></i></a>
+            </th>
+            <th>
+              <input type="text" ng-model="search_quantity" class="input-medium" /><br/>
+              <a ng-click="setSortCol('quantity')">Quantity
+                <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('quantity')]"></i></a>
+            </th>
+            <th>
+              <input type="text" ng-model="search_reserve" class="input-medium" /><br/>
+              <a ng-click="setSortCol('reserve')">Reserve
+                <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('reserve')]"></i></a>
+            </th>
+            <th>
+              <input type="text" ng-model="search_distributor_name" class="input-medium" /><br/>
+              <a ng-click="setSortCol('distributor_name')">Distributor
+                <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('distributor_name')]"></i></a>
+            </th>
+            <th>
+              <input type="text" ng-model="search_delivery_address" class="input-medium" /><br/>
+              <a ng-click="setSortCol('delivery_address')">Delivery Address
+                <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('delivery_address')]"></i></a>
+            </th>
+            <th>
+              <input type="text" ng-model="search_distributor_address" class="input-medium" /><br/>
+              <a ng-click="setSortCol('distributor_address')">Distributor address
+                <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('distributor_address')]"></i></a>
+            </th>
+            <th>
+              <input type="text" ng-model="search_distributor_suburb" class="input-medium" /><br/>
+              <a ng-click="setSortCol('distributor_suburb')">Distributor Suburb/Town
+                <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('distributor_suburb')]"></i></a>
+            </th>
+            <th>
+              <input type="text" ng-model="search_distributor_postcode" class="input-medium" /><br/>
+              <a ng-click="setSortCol('distributor_postcode')">Distributor PostCode
+                <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('distributor_postcode')]"></i></a>
+            </th>            
+            <th>
+              <input type="text" ng-model="search_product" class="input-medium" /><br/>
+              <a ng-click="setSortCol('shipping_instructions')">Shipping instructions
+                <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('shipping_instructions')]"></i></a>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-click="onRowClick(row)"
+              ng-repeat="row in productData | filter:filterProducts | filter:filterAddress | orderBy:sortCol:sortReverse[sortCol]">
+            <td>{{row.supplier_name}}</td>
+            <td>{{row.supply_address}}</td>
+            <td>{{row.supplier_address}}</td>
+            <td>{{row.supplier_suburb}}</td>
+            <td>{{row.supplier_postcode}}</td>
+            <td>{{row.product_name}}</td>
+            <td>{{row.product_variant}}</td>
+            <td>{{row.product_weight}}</td>
+            <td>{{row.quantity}}</td>
+            <td>{{row.reserve}}</td>
+            <td>{{row.distributor_name}}</td>
+            <td>{{row.delivery_address}}</td>
+            <td>{{row.distributor_address}}</td>
+            <td>{{row.distributor_suburb}}</td>
+            <td>{{row.distributor_postcode}}</td>
+            <td>{{row.shipping_instructions}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
