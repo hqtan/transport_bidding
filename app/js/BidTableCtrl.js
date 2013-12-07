@@ -5,6 +5,12 @@ angular.module("transportBiddingApp")
     $s.bidLatLonArray = [];
     $s.filterAddr = "";
     $s.isReverse = false;
+
+    http.get("/api/transport_cycle").success(function(data) {
+      $s.transportCycleList = data;
+      $s.transportCycle = data[0];
+      $s.getProductData(); 
+    });
     //make more generic @todo
     $s.filterProducts = function(item) {
       var isMatch = true;
@@ -45,7 +51,7 @@ angular.module("transportBiddingApp")
     $s.productData = {};
 
     $s.getProductData = function() {
-      http.get("/api/products").success(function(data) {
+      http.get("/api/products/" + $s.transportCycle._id).success(function(data) {
         $s.productData = data;
         var addArr = [];
 

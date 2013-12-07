@@ -1,6 +1,7 @@
 var db = require('./db/schema');
 var express = require('express');
 var fs = require('fs');
+var moment = require('moment');
 var q = require('q');
 var _ = require('underscore');
 var csv = require('csv');
@@ -14,9 +15,24 @@ var app = express();
 app.use(express.bodyParser());
 app.use(express.compress());
 
-app.get('/api/products', function(req, res) {
-  db.TransportCycle.findOne({}, function(err, data) {
-    res.json(data.package_list);
+app.get('/api/transport_cycle', function(req, res) {
+  db.TransportCycle.find({}, { package_list: 0 }, function(err, data) {
+    var retval = [];
+    data.forEach(function(e) {
+      var text = "TC" + e.tc_num + " " + moment(e.end_date).format("D-MM-YYYY");
+      retval.push({ 
+        display_text: text,
+        _id: e._id
+      });
+    });
+    res.json(retval);
+  });
+});
+
+app.get('/api/products/:id', function(req, res) {
+  db.TransportCycle.findOne({ _id: req.params.id }, function(err, data) {
+    if (data === null) res.send('');
+    else res.json(data.package_list);
   });
 });
 

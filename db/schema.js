@@ -59,7 +59,8 @@ var Bid = new mongo.Schema({
   bidder_mobile: String,
   comments: String,
   value: Number,
-  ts: Date
+  ts: { type: Date, default: Date.now },
+  bid_status: { type: Number, default: 0 }
 });
 
 TransportCycle.plugin(autoIncrement.plugin, { model: "transport_cycle",
