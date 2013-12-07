@@ -12,5 +12,8 @@ angular.module('transportBiddingApp').config(['$routeProvider',
     $routeProvider.when('/admin', { templateUrl: 'partials/admin.html',  controller: '' })
     $routeProvider.when('/upload', { templateUrl: 'partials/upload.html',
     	controller: 'UploadCtrl' })
+    $routeProvider.when('/transport_cycles', { templateUrl: 'partials/transport_cycle_table.html',
+    	controller: 'TransportCycleTableCtrl' })
+
     $routeProvider.otherwise({redirectTo: '/'});
   }]);
