@@ -15,8 +15,8 @@ app.use(express.bodyParser());
 app.use(express.compress());
 
 app.get('/api/products', function(req, res) {
-  db.TransportCycle.find({}, function(err, data) {
-    res.json(data[0].package_list);
+  db.TransportCycle.findOne({}, function(err, data) {
+    res.json(data.package_list);
   });
 });
 
@@ -41,7 +41,6 @@ app.post('/api/uploadcsv', function(req, res) {
     callStack.push(function() {
       return mapInterface.getLatLon(model[addressAttr]).then(function(resolved) {
 	model[latLngAttr] = resolved.latLon;
-        packages.push(model);
       });
     });
   };
@@ -57,9 +56,11 @@ app.post('/api/uploadcsv', function(req, res) {
         var mapping = csvDataMapping[i];
         data[mapping] = val;
       }
-
-      pushToCallstack(data, "supply_address", "supply_lat_lon");
-      pushToCallstack(data, "delivery_address", "delivery_lat_lon");
+      
+      var pIdx = packages.push(data) - 1;
+      
+      pushToCallstack(packages[pIdx], "supply_address", "supply_lat_lon");
+      pushToCallstack(packages[pIdx], "delivery_address", "delivery_lat_lon");
     }
   }).on('close', function(count) {
     console.log("finished");

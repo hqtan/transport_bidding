@@ -66,5 +66,6 @@ TransportCycle.plugin(autoIncrement.plugin, { model: "transport_cycle",
   field: "tc_num" });
 
 exports.TransportCycle = mongo.model("transport_cycle", TransportCycle);
+exports.Package = mongo.model("package", Package);
 exports.Bid = mongo.model("bid", Bid);
 exports.TransportCycleCoordinator = mongo.model("transport_cycle_coordinator", TransportCycleCoordinator);

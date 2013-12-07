@@ -24,6 +24,7 @@ exports.MapInterface = function() {
             console.log(address + " found: " + JSON.stringify(loc));
             defer.resolve({ latLon: formatLatLon(loc), isFromCache: false });
           } else {
+            console.log("ERROR: " + address + " not found.");
             defer.resolve({ latLon: {}, isFromCache: false });
           }
         });
