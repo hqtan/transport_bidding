@@ -1,5 +1,6 @@
 var conf = {};
 console.log(process.env.MONGO_PWD);
+// default settings for mongo db with no user and default port of 27017
 conf = { user : '',
           pwd : process.env.MONGO_PWD,
           url : 'localhost',
