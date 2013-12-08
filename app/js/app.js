@@ -14,6 +14,8 @@ angular.module('transportBiddingApp').config(['$routeProvider',
     	controller: 'UploadCtrl' })
     $routeProvider.when('/transport_cycles', { templateUrl: 'partials/transport_cycle_table.html',
     	controller: 'TransportCycleTableCtrl' })
+    $routeProvider.when('/temp_bid', { templateUrl: 'partials/temp_bid.html',
+      controller: 'TempBidCtrl' })
 
     $routeProvider.otherwise({redirectTo: '/'});
   }]);

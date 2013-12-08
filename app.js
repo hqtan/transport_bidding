@@ -29,6 +29,29 @@ app.get('/api/transport_cycle', function(req, res) {
   });
 });
 
+app.get('/api/bidders/:tc_id', function(req, res) {
+  var retval = {};
+
+  db.TransportCycle.findOne({ _id: req.params.tc_id }, { 'package_list._id': 1 }, 
+    function(err, data) {
+      var idList = [];
+      data.package_list.forEach(function(e) {
+        idList.push(e._id);
+      });
+
+      db.Bid.find({ package_id: { $in: idList } }, 
+        { bidder_name: 1, bidder_email: 1, bidder_mobile: 1, _id: 0 }, function(err, data) {
+        
+        data.forEach(function(e) {
+          if (!(e.bidder_email in retval)) retval[e.bidder_email.toLowerCase()] = e;
+        });
+
+        res.json(_.values(retval));
+      });
+    }
+  );
+});
+
 app.get('/api/transport_cycle/all', function(req, res) {
   // better way to find coordinator names? not sure if want to merge into /api/transport_cycle or not
   db.TransportCycle.find().distinct('transport_cycle_coordinator_id', function(error, coordinator_ids) {
