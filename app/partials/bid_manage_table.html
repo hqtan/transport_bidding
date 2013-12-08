@@ -5,12 +5,14 @@
     ng-change="getProductData(); getPackagesWithNoBids(); updateBidders(transportCycle._id);
 "/>
 </div>
+<div class="btn btn-danger" ng-hide="number_no_bid_items == 0 ">There are {{number_no_bid_items}} items with no bids
+</div>
+<h3>Bidder List</h3>
 <div ng-repeat="b in bidderList">
   <label class="checkbox">
     <input type="checkbox" ng-model="b.isSelected" ng-change='getSelectedBidders(bidderList)'> {{b.bidder_name}} ({{b.bidder_email}}) - {{b.bidder_mobile}}
   </label>
 </div>
-<div ng-if="number_no_bid_items > 0 ">There are {{number_no_bid_items}} items with no bids</div>
 <div class="container">
   <div class="row-fluid">
     <div class="span12">

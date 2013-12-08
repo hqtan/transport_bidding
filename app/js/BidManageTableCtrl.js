@@ -73,27 +73,56 @@ angular.module("transportBiddingApp")
 
     $s.rowDetails = [];
     $s.productData = {};
+    $s.bidders = [];
     $s.number_no_bid_items = 0;
     $s.getPackagesWithNoBids = function(){
       http.get("/api/transport_cycle/no_bids/" + $s.transportCycle._id).success(function(data) {
         $s.number_no_bid_items = data.length;
       });
     }
-    $s.getProductData = function() {
-      http.get("/api/bids/" + $s.transportCycle._id).success(function(data) {
-        $s.productData = data;
-        var addArr = [];
-
-        for (var row in data) {
-          var src = data[row].supply_address;
-          var dest = data[row].delivery_address;
-          var srcLatLon = data[row].supply_lat_lon;
-          var destLatLon = data[row].delivery_lat_lon;
-
-          addArr.push({src: src, dest: dest, srcLatLon: srcLatLon,
-            destLatLon: destLatLon});
+    $s.getSelectedBidders = function(bidderList){
+      $s.bidders = [];
+      for(var i = 0; i < bidderList.length; i++){
+        var bidder = bidderList[i];
+        if(bidder.isSelected){
+          $s.bidders.push(bidder);
         }
+      }
+      $s.getProductData();
+    }
+    $s.getProductData = function() {
+      var bidders = '';
 
+      http.get("/api/bids/" + $s.transportCycle._id).success(function(data) {
+        $s.productData = [];
+        for(var j = 0; j < data.length; j++){
+          var bid = data[j];
+          
+          var validBidder = true;
+          if($s.bidders.length > 0) validBidder = false;
+          for(var i = 0; i < $s.bidders.length; i++){
+            if(bid.bidder_name == $s.bidders[i].bidder_name
+              && bid.bidder_mobile == $s.bidders[i].bidder_mobile
+              && bid.bidder_email == $s.bidders[i].bidder_email
+              ) {
+              validBidder = true; 
+              break;
+            }
+          }
+          if(!validBidder) continue;
+          var addArr = [];
+
+          for (var row in data) {
+            var src = data[row].supply_address;
+            var dest = data[row].delivery_address;
+            var srcLatLon = data[row].supply_lat_lon;
+            var destLatLon = data[row].delivery_lat_lon;
+
+            addArr.push({src: src, dest: dest, srcLatLon: srcLatLon,
+              destLatLon: destLatLon});
+          }
+          $s.productData.push(bid);
+        }
         $s.addressArray = addArr;
       });
     };
