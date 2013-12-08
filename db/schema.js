@@ -42,16 +42,6 @@ var TransportCycle = new mongo.Schema({
   is_active: { type: Boolean, default: true }
 });
 
-var TransportCycleCoordinator = new mongo.Schema({
-  first_name: String,
-  last_name: String,
-  organisation_name: String,
-  email: String,
-  mobile: String,
-  phone: String,
-  address: String
-});
-
 var Bid = new mongo.Schema({
   package_id: String,
   bidder_name: String,
@@ -83,5 +73,4 @@ TransportCycle.plugin(autoIncrement.plugin, { model: "transport_cycle",
 exports.TransportCycle = mongo.model("transport_cycle", TransportCycle);
 exports.Package = mongo.model("package", Package);
 exports.Bid = mongo.model("bid", Bid);
-exports.TransportCycleCoordinator = mongo.model("transport_cycle_coordinator", TransportCycleCoordinator);
 exports.Coordinator = mongo.model("coordinator", Coordinator);
