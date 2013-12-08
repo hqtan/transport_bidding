@@ -51,7 +51,7 @@ angular.module("transportBiddingApp")
     $s.productData = {};
 
     $s.getProductData = function() {
-      http.get("/api/products/" + $s.transportCycle._id).success(function(data) {
+      http.get("/api/products/" + $s.transportCycle._id + "/true").success(function(data) {
         $s.productData = data;
         var addArr = [];
 
