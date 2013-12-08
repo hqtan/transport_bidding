@@ -1,0 +1,71 @@
+<map visible-path-array="bidLatLonArray" visible-path="visibleLineLineLatLon" address-array="addressArray" selected-addr-mdl="filterAddr"></map>
+<div class="transport-cycle-menu">
+  <select ng-model='transportCycle' 
+    ng-options="tc.display_text for tc in transportCycleList" 
+    ng-change="getProductData()"/>
+</div>
+<div class="container">
+  <div class="row-fluid">
+    <div class="span12">
+      <table class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th>
+              <input type="text" ng-model="search_bidder_name" class="input-medium" /><br/>
+              <a ng-click="setSortCol('bidder_name')">Bidder Name
+                <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('bidder_name')]"></i></a>
+            </th>
+            <th>
+              <input type="text" ng-model="search_bidder_email" class="input-medium" /><br/>
+              <a ng-click="setSortCol('bidder_email')">Bidder Email
+                <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('bidder_email')]"></i></a>
+            </th>
+            <th>
+              <input type="text" ng-model="search_product" class="input-medium" /><br/>
+              <a ng-click="setSortCol('product_name')">Product
+                <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('product_name')]"></i></a>
+            </th>
+            <th>
+              <a ng-click="setSortCol('quantity')">Qty
+                <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('quantity')]"></i></a>
+            </th>
+            <th>
+              <input type="text" ng-model="search_src" class="input-medium"/><br/>
+              <a ng-click="setSortCol('supplier_suburb')">Source
+                <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('supplier_suburb')]"></i></a>
+            </th>
+            <th>
+              <input type="text" ng-model="search_dest" class="input-medium" /><br/>
+              <a ng-click="setSortCol('distributor_suburb')">Destination
+                <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('distributor_suburb')]"></i></a>
+            </th>
+            <th>
+              <a ng-click="setSortCol('reserve')">Reserve
+                <i ng-class="{true:'icon-chevron-up', false:'icon-chevron-down'}[isSortReverse('reserve')]"></i></a>
+            </th>
+            <th>Bid Value</th>
+            <th>Select</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-click="onRowClick(row)"
+              ng-repeat="row in productData | filter:filterProducts | filter:filterAddress | orderBy:sortCol:sortReverse[sortCol]">
+            <td>{{row.bidder_name}}</td>
+            <td>{{row.bidder_email}}</td>
+            <td>{{row.product_name}}</td>
+            <td>{{row.quantity}}</td>
+            <td>{{row.supplier_suburb}}</td>
+            <td>{{row.distributor_suburb}}</td>
+            <td>{{row.reserve}}</td>
+            <td>{{row.value}}</td>
+            <td><input type="checkbox" ng-model="row.hasBid" ng-change="updateBidValue()"></td>
+          
+<!--             <td><input type="text" class="input-mini" ng-model="row.bidValue"></td>
+            <td><input type="checkbox" ng-model="row.hasBid" ng-change="updateBidValue(row)"></td>
+ -->          
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

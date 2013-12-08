@@ -13,7 +13,11 @@ angular.module('transportBiddingApp').config(['$routeProvider',
     $routeProvider.when('/upload', { templateUrl: 'partials/upload.html',
     	controller: 'UploadCtrl' })
     $routeProvider.when('/transport_cycles', { templateUrl: 'partials/transport_cycle_table.html',
-    	controller: 'TransportCycleTableCtrl' })
+      controller: 'TransportCycleTableCtrl' })
+    $routeProvider.when('/packages/:id', { templateUrl: 'partials/package_table.html',
+      controller: 'PackageTableCtrl' })
+    $routeProvider.when('/bid_management', { templateUrl: 'partials/bid_manage_table.html',
+      controller: 'BidManageTableCtrl' })
 
     $routeProvider.otherwise({redirectTo: '/'});
   }]);
