@@ -10,6 +10,7 @@ angular.module("transportBiddingApp")
       $s.transportCycleList = data;
       $s.transportCycle = data[0];
       $s.getProductData(); 
+      $s.getPackagesWithNoBids();
     });
     //make more generic @todo
     $s.filterProducts = function(item) {
@@ -59,7 +60,12 @@ angular.module("transportBiddingApp")
 
     $s.rowDetails = [];
     $s.productData = {};
-
+    $s.number_no_bid_items = 0;
+    $s.getPackagesWithNoBids = function(){
+      http.get("/api/transport_cycle/no_bids/" + $s.transportCycle._id).success(function(data) {
+        $s.number_no_bid_items = data.length;
+      });
+    }
     $s.getProductData = function() {
       http.get("/api/bids/" + $s.transportCycle._id).success(function(data) {
         $s.productData = data;
