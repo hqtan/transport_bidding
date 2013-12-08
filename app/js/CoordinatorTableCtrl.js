@@ -104,6 +104,7 @@ angular.module("transportBiddingApp")
         // $s.emailOpen = true;
         // $s.emailData = data;
         $s.getCoordinatorData();
+        alert("Coordinator added");
       });
     };
 
