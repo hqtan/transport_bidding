@@ -29,29 +29,57 @@ app.get('/api/transport_cycle', function(req, res) {
   });
 });
 
+app.get('/api/bidders/:tc_id', function(req, res) {
+  var retval = {};
+
+  db.TransportCycle.findOne({ _id: req.params.tc_id }, { 'package_list._id': 1 }, 
+    function(err, data) {
+      var idList = [];
+      data.package_list.forEach(function(e) {
+        idList.push(e._id);
+      });
+
+      db.Bid.find({ package_id: { $in: idList } }, 
+        { bidder_name: 1, bidder_email: 1, bidder_mobile: 1, _id: 0 }, function(err, data) {
+        data.forEach(function(e) {
+          if (typeof e.bidder_email !== 'undefined' && 
+            !(e.bidder_email in retval)) {
+            retval[e.bidder_email.toLowerCase()] = e;
+          }
+        });
+
+        res.json(_.values(retval));
+      });
+    }
+  );
+});
+
 app.get('/api/transport_cycle/all', function(req, res) {
   // better way to find coordinator names? not sure if want to merge into /api/transport_cycle or not
   db.TransportCycle.find().distinct('transport_cycle_coordinator_id', function(error, coordinator_ids) {
-    db.Coordinator.find({ $or: coordinator_ids.map(function(id){ return {_id: id}}) },  function(error, coordinators_raw) {
-      if(typeof(coordinators_raw) === "undefined" || coordinators_raw == null ) return;
+    db.Coordinator.find({ $or: coordinator_ids.map(function(id){ if(typeof(id) === "undefined") return {_id: ''}; return {_id: id}}) },  function(error, coordinators_raw) {
       var coordinators = {};
-      coordinators_raw.forEach(function(e){
-        e.display_name = 
-          (typeof e['organisation'] != "undefined" ? e['organisation'] : "") + ": " +
-          (typeof e['first_name'] != "undefined" ? e['first_name'] : "") + " " + 
-          (typeof e['last_name'] != "undefined" ? e['last_name'] : "") + 
-          "";
-
-        coordinators[e._id] = e;
-      });
+      if(typeof(coordinators_raw) !== "undefined" && coordinators_raw != null ){
+        coordinators_raw.forEach(function(e){
+          e.display_name = 
+              (typeof e['organisation'] != "undefined" ? e['organisation'] : "") + ": " +
+              (typeof e['first_name'] != "undefined" ? e['first_name'] : "") + " " + 
+              (typeof e['last_name'] != "undefined" ? e['last_name'] : "") + 
+              "";
+          coordinators[e._id] = e;
+        });
+      } 
 
       db.TransportCycle.find({}, { package_list: 0 }, function(err, data) {
         var retval = [];
         data.forEach(function(e) {      
           var text = "TC" + e.tc_num + " " + moment(e.end_date).format("D-MM-YYYY");
+          var coordinator_text = '';
+          if(coordinators[e.transport_cycle_coordinator_id])
+            coordinator_text = coordinators[e.transport_cycle_coordinator_id].display_name;
           retval.push({ 
             display_text: text,
-            coordinator_text: coordinators[e.transport_cycle_coordinator_id].display_name,
+            coordinator_text: coordinator_text,
             start_date: e.start_date,
             end_date: e.end_date,
             is_active: e.is_active,
