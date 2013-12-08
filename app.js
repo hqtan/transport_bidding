@@ -41,9 +41,11 @@ app.get('/api/bidders/:tc_id', function(req, res) {
 
       db.Bid.find({ package_id: { $in: idList } }, 
         { bidder_name: 1, bidder_email: 1, bidder_mobile: 1, _id: 0 }, function(err, data) {
-        
         data.forEach(function(e) {
-          if (!(e.bidder_email in retval)) retval[e.bidder_email.toLowerCase()] = e;
+          if (typeof e.bidder_email !== 'undefined' && 
+            !(e.bidder_email in retval)) {
+            retval[e.bidder_email.toLowerCase()] = e;
+          }
         });
 
         res.json(_.values(retval));
