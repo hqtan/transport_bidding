@@ -89,6 +89,44 @@ app.get('/api/products/:id', function(req, res) {
     else res.json(data.package_list);
   });
 });
+// 52a3af9e472da60000000012
+app.get('/api/bids/:id', function(req, res) {
+  db.TransportCycle.findOne({ _id: req.params.id }, function(err, data) {
+    if (data === null) res.send('');
+    else {
+      var package_ids = [];
+      var package_id_mapping = [];
+      var all_bids = [];
+      data.package_list.forEach(function(e) {
+        package_ids.push({"package_id":e._id});
+        package_id_mapping[e._id] = e;
+      });
+      db.Bid.find({ $or: package_ids}, function(error, bids) {
+          for(var i = 0; i < bids.length; i++){
+            var package_data = package_id_mapping[bids[i].package_id];
+            var current_bid = {};
+            for(var field in ["supplier_name","supply_address","supplier_suburb","supplier_postcode","product_name","variant","variant_weight","quantity","reserve","distributor_name","delivery_address","distributor_suburb","distributor_postcode","shipping_instructions","is_active","delivery_lat_lon","supply_lat_lon","timestamp"]){
+              bids[i][field] = package_data[field];
+            }
+            var fields = [];
+            fields = ["package_id","bidder_name","bidder_email","bidder_mobile","comments","value","_id","__v","bid_status","ts"];
+            for(var j = 0; j < fields.length; j++){
+              var field = fields[j];
+              current_bid[field] = bids[i][field];
+            }
+            fields = ["supplier_name","supply_address","supplier_suburb","supplier_postcode","product_name","variant","variant_weight","quantity","reserve","distributor_name","delivery_address","distributor_suburb","distributor_postcode","shipping_instructions","is_active","delivery_lat_lon","supply_lat_lon","timestamp"];
+            for(var j = 0; j < fields.length; j++){
+              var field = fields[j];
+              bids[i][field] = package_data[field];
+              current_bid[field] = package_data[field];
+            }
+            all_bids.push(current_bid);
+          }
+          res.json(all_bids);
+      });      
+    }
+  });
+});
 
 app.post('/api/uploadcsv', function(req, res) {
   var mapInterface = new mapTools.MapInterface();
