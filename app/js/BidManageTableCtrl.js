@@ -66,6 +66,13 @@ angular.module("transportBiddingApp")
       return isMatch;
     }
 
+    $s.setBidStatus = function(bidId, packageId, status) {
+      http.post("/api/bids/" + bidId + "/package/" + packageId + "/status/" + status)
+        .success(function(data) {
+        $s.getProductData();
+      })
+    };
+
     $s.filterAddress = function(item) {
       if ($s.filterAddr !== "") {
         return item.supply_address === $s.filterAddr

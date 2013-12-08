@@ -44,6 +44,19 @@ app.get('/api/transport_cycle', function(req, res) {
   });
 });
 
+app.post("/api/bids/:bid_id/package/:package_id/status/:bid_status", function(req, res) {
+  console.log(req.params);
+  db.Bid.update({ package_id: req.params.package_id }, { bid_status: 2 }, { multi: true },
+    function() {
+      if (req.params.bid_status == 1) 
+        db.Bid.update({ _id: req.params.bid_id }, { bid_status: 1 }, {},
+        function() {
+          res.send(200);
+        });
+      else res.send(200);
+    });
+});
+
 app.get('/api/bidders/:tc_id', function(req, res) {
   var retval = {};
 

@@ -73,6 +73,13 @@
             <td>{{row.distributor_suburb}}</td>
             <td>{{row.reserve}}</td>
             <td>{{row.value}}</td>
+            <td>
+              <div class="btn-group">
+                <button class="btn" ng-click='setBidStatus(row._id, row.package_id, 2)' ng-class="{2:'btn-danger'}[row.bid_status]">&nbsp;</button>
+                <button class="btn" ng-click='setBidStatus(row._id, row.package_id, 1)' ng-class="{1:'btn-success'}[row.bid_status]">&nbsp;</button>
+              </div>
+            </td>
+
             <td><input type="checkbox" ng-model="row.hasBid" ng-change="updateBidValue()"></td>
           
 <!--             <td><input type="text" class="input-mini" ng-model="row.bidValue"></td>
