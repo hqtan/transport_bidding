@@ -5,7 +5,11 @@ angular.module("transportBiddingApp")
     $s.bidLatLonArray = [];
     $s.filterAddr = "";
     $s.isReverse = false;
+    $s.showAccepted = false;
 
+    $s.filterAccepted = function(){
+      $s.getProductData();
+    }
     $s.updateBidders = function(tc_id) {
       http.get("/api/bidders/" + tc_id).success(function(data) {
         $s.bidderList = data;
@@ -99,6 +103,7 @@ angular.module("transportBiddingApp")
           var bid = data[j];
           
           var validBidder = true;
+
           if($s.bidders.length > 0) validBidder = false;
           for(var i = 0; i < $s.bidders.length; i++){
             if(bid.bidder_name == $s.bidders[i].bidder_name
@@ -109,6 +114,11 @@ angular.module("transportBiddingApp")
               break;
             }
           }
+          if($s.showAccepted){
+            validBidder = false;
+            if(bid.bid_status == 1) validBidder = true;
+          }
+
           if(!validBidder) continue;
           var addArr = [];
 
