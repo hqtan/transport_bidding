@@ -16,6 +16,8 @@ angular.module('transportBiddingApp').config(['$routeProvider',
       controller: 'TransportCycleTableCtrl' })
     $routeProvider.when('/packages/:id', { templateUrl: 'partials/package_table.html',
       controller: 'PackageTableCtrl' })
+    $routeProvider.when('/bid_management', { templateUrl: 'partials/bid_manage_table.html',
+      controller: 'BidManageTableCtrl' })
 
     $routeProvider.otherwise({redirectTo: '/'});
   }]);
