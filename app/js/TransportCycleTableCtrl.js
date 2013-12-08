@@ -13,6 +13,10 @@ angular.module("transportBiddingApp")
         var regex = new RegExp($s.search_active, "i")
         isMatch = isMatch && regex.test(item.is_active);
       }
+      // if (typeof $s.search_active != "undefined"
+      //         && $s.search_active != "") {
+      //   isMatch = isMatch && (s.search_active == item.is_active);
+      // }
       if (typeof $s.search_transport_cycle != "undefined"
               && $s.search_transport_cycle != "") {
         var regex = new RegExp($s.search_transport_cycle, "i")
@@ -45,30 +49,6 @@ angular.module("transportBiddingApp")
       });
     };
 
-    $s.onRowClick = function(row) {
-      showRowDetails(row);
-    };
-
-    var showRowDetails = function(row) {
-      $s.transportCycleActive = row.is_active;
-      $s.transportCycleId = row._id;
-      $s.rowDetails = {
-        display: [{
-          desc: "Transport Cycle",
-          val: row.display_text
-        }, {
-          desc: "Start Date",
-          val: row.start_date
-        }, {
-          desc: "End Date",
-          val: row.start_date
-        }, {
-          desc: "Coordinator",
-          val: row.coordinator_text
-        }]
-      };
-    };
-
     $s.isSortReverse = function(index) {
       return $s.sortReverse[index];
     };
@@ -80,14 +60,19 @@ angular.module("transportBiddingApp")
       $s.sortCol = index;
     };
 
-    $s.editTransportCycle = function() {
+    $s.editTransportCycle = function(row) {
       var postData = {};
+    
       postData.transport_cycle = {
-  	    'id' : $s.transportCycleId
-	    , 'active' : $s.transportCycleActive
+        'id' : row._id
+        ,'active' : row.is_active
       };
       http.post('/api/transport_cycle/edit', postData).success(function(data) {
-        $s.getTransportCycleData();
+        if(data.status == "ok")
+          alert('Updated');
+        else
+          alert('ERRO: Could not update!');
       });
+      return;
     };
   }]);

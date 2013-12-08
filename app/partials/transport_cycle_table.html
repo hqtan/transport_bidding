@@ -2,7 +2,7 @@
 
 <div class="container">
   <div class="row-fluid">
-    <div class="span9">
+    <div class="span12">
       <table ng-init="getTransportCycleData()" class="table table-striped table-hover">
         <thead>
           <tr>
@@ -36,30 +36,18 @@
           </tr>
         </thead>
         <tbody>
-          <tr ng-click="onRowClick(row)"
-              ng-repeat="row in transportCycleData | filter:filterCoordinator | orderBy:sortCol:sortReverse[sortCol]">
-            <td>{{row.is_active}}</td>
+          <tr ng-repeat="row in transportCycleData | filter:filterCoordinator | orderBy:sortCol:sortReverse[sortCol]">
+            <td>
+              <input type="checkbox" ng-model="row.is_active" ng-click="editTransportCycle(row)">
+            </td>
             <td>{{row.display_text}}</td>
             <td>{{row.start_date}}</td>
             <td>{{row.end_date}}</td>
             <td>{{row.coordinator_text}}</td>
-            <td><a href="/#/packages/{{row._id}}" class="btn">View</a></td>
+            <td><a href="/#/packages/{{row._id}}" class="btn">View Packages</a></td>
           </tr>
         </tbody>
       </table>
     </div>
-    <div class="span3 well">
-    	<h4>Edit Transport Cycle</h4>
-      <form name="submitForm" ng-submit="editTransportCycle()">
-      <p ng-repeat="detail in rowDetails.display">
-        <b class="muted">{{detail.desc}}:</b><br />{{detail.val}}
-      </p>
-      	{{rowDetails.data.id}}
-      	{{rowDetails.data.active}}
-        <b class="muted">Active: </b><input type="checkbox" ng-model="transportCycleActive"/><br/>
-        <input type="hidden" ng-model="transportCycleId" value="{{rowDetails.data.id}}"/>
-        <input type="submit" class="btn btn-success" value="Save"/>
-      </form>      
-    </div>
-  </div>
+   </div>
 </div>
