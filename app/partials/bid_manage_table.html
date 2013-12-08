@@ -2,7 +2,12 @@
 <div class="transport-cycle-menu">
   <select ng-model='transportCycle' 
     ng-options="tc.display_text for tc in transportCycleList" 
-    ng-change="getProductData()"/>
+    ng-change="getProductData(); updateBidders(transportCycle._id);"/>
+</div>
+<div ng-repeat="b in bidderList">
+  <label class="checkbox">
+    <input type="checkbox" ng-model="b.isSelected" ng-change='getSelectedBidders(bidderList)'> {{b.bidder_name}} ({{b.bidder_email}}) - {{b.bidder_mobile}}
+  </label>
 </div>
 <div class="container">
   <div class="row-fluid">
